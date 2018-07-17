@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.jokin.framework.moduleserver">
+
+    <application>
+        <service
+            android:name=".ModuleCenterService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="framework.server.service.main"/>
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

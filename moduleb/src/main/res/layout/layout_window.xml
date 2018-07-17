@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.jokin.framework.modulesdk.impl.CWindow xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+    android:background="#f1f11f">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ModuleB: hello world!"
+        android:textSize="20sp"/>
+</com.jokin.framework.modulesdk.impl.CWindow>
