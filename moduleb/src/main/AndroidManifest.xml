@@ -16,7 +16,8 @@
             android:exported="true">
         </service>
 
-        <activity android:name=".LauchActivity">
+        <activity android:name=".LauchActivity"
+            android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

@@ -25,6 +25,7 @@ public class ServerIntent {
     public static Intent getServerMainActivityIntent(Context context) {
         Intent intent = new Intent(ACTION_SERVER_ACTIVITY_MAIN);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         return intent;
     }
 

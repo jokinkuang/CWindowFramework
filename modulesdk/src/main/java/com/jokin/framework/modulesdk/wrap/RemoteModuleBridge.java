@@ -5,23 +5,28 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
 
-import com.jokin.framework.modulesdk.IRemoteWindow;
-import com.jokin.framework.modulesdk.IWindow;
+import com.jokin.framework.modulesdk.IClientModule;
+import com.jokin.framework.modulesdk.IModuleClient;
 
 /**
  * Created by jokin on 2018/7/17 09:40.
  */
 
-public class RemoteWindowBridge extends IRemoteWindow.Stub {
+public class RemoteModuleBridge extends IModuleClient.Stub {
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
-    private IWindow mWindow;
+    private IClientModule mModule;
 
-    public RemoteWindowBridge(IWindow window) {
-        if (window == null) {
-            throw new NullPointerException("window cannot be null");
+    public RemoteModuleBridge(IClientModule module) {
+        if (module == null) {
+            throw new NullPointerException("module cannot be null");
         }
-        mWindow = window;
+        mModule = module;
+    }
+
+    @Override
+    public String key() throws RemoteException {
+        return mModule.key();
     }
 
     @Override
@@ -29,7 +34,7 @@ public class RemoteWindowBridge extends IRemoteWindow.Stub {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mWindow.onCreate(bundle);
+                mModule.onCreate(bundle);
             }
         });
     }
@@ -39,7 +44,7 @@ public class RemoteWindowBridge extends IRemoteWindow.Stub {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mWindow.onStart();
+                mModule.onStart();
             }
         });
     }
@@ -49,7 +54,7 @@ public class RemoteWindowBridge extends IRemoteWindow.Stub {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mWindow.onRestart();
+                mModule.onRestart();
             }
         });
     }
@@ -59,7 +64,7 @@ public class RemoteWindowBridge extends IRemoteWindow.Stub {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mWindow.onResume();
+                mModule.onResume();
             }
         });
     }
@@ -69,7 +74,7 @@ public class RemoteWindowBridge extends IRemoteWindow.Stub {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mWindow.onPause();
+                mModule.onPause();
             }
         });
     }
@@ -79,7 +84,7 @@ public class RemoteWindowBridge extends IRemoteWindow.Stub {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mWindow.onStop();
+                mModule.onStop();
             }
         });
     }
@@ -89,18 +94,21 @@ public class RemoteWindowBridge extends IRemoteWindow.Stub {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mWindow.onDestroy();
+                mModule.onDestroy();
             }
         });
     }
 
+    /////////////// Bridge is just a shadow which is equals the target ///////////////
+
     @Override
-    public void notifyActivated() throws RemoteException {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mWindow.notifyActivated();
-            }
-        });
+    public boolean equals(Object obj) {
+        RemoteModuleBridge target = (RemoteModuleBridge) obj;
+        return mModule.equals(target.mModule);
+    }
+
+    @Override
+    public int hashCode() {
+        return mModule.hashCode();
     }
 }

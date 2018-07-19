@@ -19,4 +19,15 @@
         android:textSize="50sp"
         android:textStyle="bold"/>
 
+    <LinearLayout
+        android:layout_gravity="bottom|left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/moduleB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ModuleB"/>
+    </LinearLayout>
 </FrameLayout>

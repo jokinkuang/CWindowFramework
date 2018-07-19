@@ -1,9 +1,11 @@
 // IRemoteWindow.aidl
 package com.jokin.framework.modulesdk;
 
-// Declare any non-default types here with import statements
-
-interface IRemoteWindow {
+/**
+ * Remote Client Module
+ **/
+interface IModuleClient {
+    String key();
 
     void onCreate(out android.os.Bundle bundle);
 
@@ -18,10 +20,4 @@ interface IRemoteWindow {
     void onStop();
 
     void onDestroy();
-
-    /**
-     * 通知：窗口激活
-     */
-    void notifyActivated();
-
 }

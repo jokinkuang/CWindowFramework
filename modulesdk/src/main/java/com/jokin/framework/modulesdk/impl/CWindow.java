@@ -5,20 +5,21 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.IWindowManager;
-import com.jokin.framework.modulesdk.delegate.MovableDelegate;
+import com.jokin.framework.modulesdk.delegate.MoveDelegate;
 
 /**
  * Created by jokin on 2018/7/16 10:51.
  */
 
 public class CWindow extends FrameLayout implements IWindow, View.OnTouchListener {
-
+    private static final String TAG = "CWindow";
     protected IWindow.LayoutParams mWindowLayoutParams;
 
     public CWindow(@NonNull Context context) {
@@ -37,36 +38,40 @@ public class CWindow extends FrameLayout implements IWindow, View.OnTouchListene
 
     @Override
     public void onCreate(Bundle bundle) {
+        Log.d(TAG, "onCreate() called with: bundle = [" + bundle + "]");
         setVisibility(INVISIBLE);
     }
 
     @Override
     public void onStart() {
-
+        Log.d(TAG, "onStart() called");
     }
 
     @Override
     public void onRestart() {
-
+        Log.d(TAG, "onRestart() called");
     }
 
     @Override
     public void onResume() {
+        Log.d(TAG, "onResume() called");
         setVisibility(VISIBLE);
     }
 
     @Override
     public void onPause() {
-
+        Log.d(TAG, "onPause() called");
     }
 
     @Override
     public void onStop() {
+        Log.d(TAG, "onStop() called");
         setVisibility(INVISIBLE);
     }
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy() called");
         setVisibility(INVISIBLE);
     }
 
@@ -133,7 +138,7 @@ public class CWindow extends FrameLayout implements IWindow, View.OnTouchListene
 
     ///////////////////
 
-    private MovableDelegate mMovableDelegate = new MovableDelegate(this);
+    private MoveDelegate mMovableDelegate = new MoveDelegate(this);
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {

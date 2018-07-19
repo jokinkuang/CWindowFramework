@@ -1,27 +1,21 @@
 package com.jokin.framework.modulesdk.impl;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.PixelFormat;
 import android.os.Build;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.jokin.framework.modulesdk.IRemoteWindowManager;
+import com.jokin.framework.modulesdk.IClientModule;
 import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.IWindowManager;
-import com.jokin.framework.modulesdk.intent.ServerIntent;
-import com.jokin.framework.modulesdk.wrap.RemoteWindowBridge;
 
 import java.security.InvalidParameterException;
+import java.util.HashMap;
 
 import static com.jokin.framework.modulesdk.IWindow.LayoutParams.INT_INVALID;
 
@@ -36,13 +30,13 @@ public final class CWindowManager implements IWindowManager {
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mDefaultLayoutParams;
 
-    private IRemoteWindowManager mRemoteWindowManager;
-    private SparseArray<IWindow> mWindows = new SparseArray<>(5);
+    private IClientModule mModule;
+    private HashMap<Integer, IWindow> mWindows = new HashMap<>(5);
 
-    public CWindowManager(Context context) {
-        mContext = context;
+    public CWindowManager(IClientModule module) {
+        mModule = module;
+        mContext = module.getContext();
         init();
-        initRemote();
     }
 
     private void init() {
@@ -67,43 +61,31 @@ public final class CWindowManager implements IWindowManager {
         mDefaultLayoutParams.y = 0;
     }
 
-    private void initRemote() {
-        Log.d(TAG, "initRemote() called");
-        Intent intentService = ServerIntent.getServerMainServiceIntent(mContext);
-        mContext.bindService(intentService, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                Log.d(TAG, "onServiceConnected() called with: name = [" + name + "], service = [" + service + "]");
-                mRemoteWindowManager = IRemoteWindowManager.Stub.asInterface(service);
-
-                for (int i = 0; i < mWindows.size(); ++i) {
-                    try {
-                        IWindow window = mWindows.get(mWindows.keyAt(i));
-                        Log.d(TAG, "onServiceConnected: "+ window);
-                        mRemoteWindowManager.addWindow(new RemoteWindowBridge(window));
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                mRemoteWindowManager = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
+    @Override
+    public void destroy() {
+        IWindow[] windows = mWindows.values().toArray(new IWindow[mWindows.size()]);
+        for (IWindow window : windows) {
+            removeWindow(window);
+        }
+        mWindows.clear();
     }
 
     @Override
     public void addWindow(IWindow window) {
-        addWindow(window, null);
+        if (window == null) {
+            throw new NullPointerException("window cannot be null");
+        }
+        addWindow(window, window.getWindowLayoutParams());
     }
 
     @Override
     public void addWindow(IWindow window, IWindow.LayoutParams layoutParams) {
+        if (window == null) {
+            throw new NullPointerException("window cannot be null");
+        }
         View contentView = window.getContentView();
         if (contentView == null) {
-            throw new InvalidParameterException("Window::getContentView() should not be null.");
+            throw new NullPointerException("window::getContentView() cannot be null");
         }
         if (layoutParams == null) {
             layoutParams = new IWindow.LayoutParams.Builder().build();
@@ -114,39 +96,15 @@ public final class CWindowManager implements IWindowManager {
         if (hasAdded(contentView)) {
             removeView(contentView);
         }
-        mWindowManager.addView(contentView, toWindowLayoutParams(layoutParams));
+        // make sure window is pure before add
+        window.detachWindowManager();
         window.setWindowLayoutParams(layoutParams);
+
+        addView(contentView, layoutParams);
         window.attachWindowManager(this);
 
-        // TODO notify server
-        if (mRemoteWindowManager != null) {
-            try {
-                mRemoteWindowManager.addWindow(new RemoteWindowBridge(window));
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        } else {
-            mWindows.put(window.hashCode(), window);
-        }
-    }
-
-    @Override
-    public void updateWindow(IWindow window, IWindow.LayoutParams layoutParams) {
-        View contentView = window.getContentView();
-        if (contentView == null) {
-            throw new InvalidParameterException("Window::getContentView() should not be null.");
-        }
-        if (! checkPermission()) {
-            return;
-        }
-        if (! hasAdded(contentView)) {
-            throw new InvalidParameterException("Window::updateWindow() window has not been added.");
-        }
-        mWindowManager.updateViewLayout(contentView, toWindowLayoutParams(layoutParams));
-        // careful dead loop
-        if (layoutParams != window.getWindowLayoutParams()) {
-            window.setWindowLayoutParams(layoutParams);
-        }
+        mModule.addLifecycleCallback(window);
+        mWindows.put(window.hashCode(), window);
     }
 
     @Override
@@ -159,17 +117,32 @@ public final class CWindowManager implements IWindowManager {
         removeView(contentView);
         window.detachWindowManager();
 
-        // TODO notify server
-        if (mRemoteWindowManager != null) {
-            try {
-                mRemoteWindowManager.removeWindow(new RemoteWindowBridge(window));
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
+        mModule.removeLifecycleCallback(window);
+        mWindows.remove(window.hashCode());
+    }
+
+    @Override
+    public void updateWindow(IWindow window, IWindow.LayoutParams layoutParams) {
+        View contentView = window.getContentView();
+        if (contentView == null) {
+            throw new NullPointerException("window::getContentView() cannot be null");
+        }
+        if (! checkPermission()) {
+            return;
+        }
+        if (! hasAdded(contentView)) {
+            throw new InvalidParameterException("Window::updateWindow() window has not been added");
+        }
+        updateView(contentView, layoutParams);
+
+        // Careful dead loop!! window.setWindowLayoutParams() may cause updateWindow() again !!
+        if (layoutParams != window.getWindowLayoutParams()) {
+            Log.d(TAG, "updateWindow: save layoutParams to window");
+            window.setWindowLayoutParams(toLayoutParams((WindowManager.LayoutParams) contentView.getLayoutParams()));
         }
     }
 
-    ////////////////////
+    ///////// Android's WindowManager ///////////
 
     private boolean checkPermission() {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -200,15 +173,19 @@ public final class CWindowManager implements IWindowManager {
         return false;
     }
 
-    private void removeView(View window) {
-        try {
-            mWindowManager.removeViewImmediate(window);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void addView(View view, IWindow.LayoutParams layoutParams) {
+        mWindowManager.addView(view, toWindowLayoutParams(layoutParams));
+        Log.d(TAG, "addView: added end with layoutParams:"+view.getLayoutParams());
     }
 
-    ///////////////////
+    private void updateView(View view, IWindow.LayoutParams layoutParams) {
+        mWindowManager.updateViewLayout(view, toWindowLayoutParams(layoutParams));
+        Log.d(TAG, "updateView: update end with layoutParams:"+view.getLayoutParams());
+    }
+
+    private void removeView(View view) {
+        mWindowManager.removeViewImmediate(view);
+    }
 
     private WindowManager.LayoutParams toWindowLayoutParams(IWindow.LayoutParams params) {
         WindowManager.LayoutParams windowParams = new WindowManager.LayoutParams();
@@ -233,5 +210,16 @@ public final class CWindowManager implements IWindowManager {
             windowParams.height = params.height;
         }
         return windowParams;
+    }
+
+    private IWindow.LayoutParams toLayoutParams(WindowManager.LayoutParams params) {
+        return new IWindow.LayoutParams.Builder()
+                .gravity(params.gravity)
+                .flags(params.flags)
+                .width(params.width)
+                .height(params.height)
+                .x(params.x)
+                .y(params.y)
+                .build();
     }
 }

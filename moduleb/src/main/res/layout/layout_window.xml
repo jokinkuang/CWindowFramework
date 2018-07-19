@@ -3,9 +3,36 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
     android:background="#f1f11f">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="ModuleB: hello world!"
         android:textSize="20sp"/>
+    <Button
+        android:id="@+id/btn_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Close"/>
+    <Button
+        android:id="@+id/btn_min"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Min"/>
+    <Button
+        android:id="@+id/btn_max"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Max"/>
+    </LinearLayout>
+    <Button
+        android:id="@+id/btn_scale"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_gravity="bottom|end"
+        android:text="X"
+        android:background="#1f223322"/>
 </com.jokin.framework.modulesdk.impl.CWindow>

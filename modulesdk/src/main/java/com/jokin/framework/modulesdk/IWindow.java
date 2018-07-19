@@ -1,7 +1,9 @@
 package com.jokin.framework.modulesdk;
 
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.jokin.framework.modulesdk.iwindow.ILifecycable;
 import com.jokin.framework.modulesdk.iwindow.IMovable;
@@ -38,14 +40,26 @@ public interface IWindow extends IResizable, IMovable, ILifecycable {
 
     //////////////////////
 
-    class LayoutParams {
+    class LayoutParams extends ViewGroup.LayoutParams {
         public static final int INT_INVALID = -99999;
         public int flags = INT_INVALID;
-        public int gravity = INT_INVALID;
-        public int x = INT_INVALID;
-        public int y = INT_INVALID;
-        public int width = INT_INVALID;
-        public int height = INT_INVALID;
+        public int gravity = Gravity.LEFT|Gravity.TOP;
+        public int x = 0;
+        public int y = 0;
+        public int width = WRAP_CONTENT;
+        public int height = WRAP_CONTENT;
+
+        public LayoutParams() {
+            super(INT_INVALID, INT_INVALID);
+        }
+
+        public LayoutParams(int width, int height) {
+            super(width, height);
+        }
+
+        public LayoutParams(ViewGroup.LayoutParams source) {
+            super(source);
+        }
 
         @Override
         public boolean equals(Object obj) {

@@ -5,11 +5,13 @@ package com.jokin.framework.modulesdk;
  */
 
 public interface IWindowManager {
+    void destroy();
+
     void addWindow(IWindow window);
 
     void addWindow(IWindow window, IWindow.LayoutParams layoutParams);
 
-    void updateWindow(IWindow window, IWindow.LayoutParams layoutParams);
-
     void removeWindow(IWindow window);
+
+    void updateWindow(IWindow window, IWindow.LayoutParams layoutParams);
 }

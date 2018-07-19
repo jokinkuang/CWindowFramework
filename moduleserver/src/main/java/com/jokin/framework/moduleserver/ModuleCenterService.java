@@ -8,8 +8,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.jokin.framework.modulesdk.IRemoteWindow;
-import com.jokin.framework.modulesdk.IRemoteWindowManager;
+import com.jokin.framework.modulesdk.IModuleClient;
+import com.jokin.framework.modulesdk.IModuleServer;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,17 +17,28 @@ public class ModuleCenterService extends Service {
     private static final String TAG = ModuleCenterService.class.getSimpleName();
     public static final String LOCAL = "FROM_LOCAL";
 
-    private ConcurrentHashMap<IRemoteWindow, IRemoteWindow> mWindows = new ConcurrentHashMap<>(15);
-
+    private ConcurrentHashMap<String, IModuleClient> mClientModules = new ConcurrentHashMap<>(15);
 
     public ModuleCenterService() {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "onCreate() called");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "Service destroyed with mClientModules size:"+mClientModules.size());
+    }
+
+    @Override
     public IBinder onBind(Intent intent) {
         if (intent == null) {
-            Log.d(TAG, "onBind() called with: null = [" + intent + "]");
-            return null;
+            Log.d(TAG, "onBind() called with: remote = [" + intent + "]");
+            return mRemoteBinder;
         }
         if (LOCAL.equalsIgnoreCase(intent.getAction())) {
             Log.d(TAG, "onBind() called with: local = [" + intent + "]");
@@ -38,9 +49,10 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnCreate(Bundle bundle) {
-        for (IRemoteWindow remoteWindow : mWindows.keySet()) {
+        Log.d(TAG, "notifyOnCreate() called with size: "+mClientModules.size());
+        for (IModuleClient remoteClient : mClientModules.values()) {
             try {
-                remoteWindow.onCreate(bundle);
+                remoteClient.onCreate(bundle);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -48,9 +60,10 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnStart() {
-        for (IRemoteWindow remoteWindow : mWindows.keySet()) {
+        Log.d(TAG, "notifyOnStart() called with size: "+mClientModules.size());
+        for (IModuleClient remoteClient : mClientModules.values()) {
             try {
-                remoteWindow.onStart();
+                remoteClient.onStart();
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -58,9 +71,10 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnResume() {
-        for (IRemoteWindow remoteWindow : mWindows.keySet()) {
+        Log.d(TAG, "notifyOnResume() called with size: "+mClientModules.size());
+        for (IModuleClient remoteClient : mClientModules.values()) {
             try {
-                remoteWindow.onResume();
+                remoteClient.onResume();
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -68,9 +82,10 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnPause() {
-        for (IRemoteWindow remoteWindow : mWindows.keySet()) {
+        Log.d(TAG, "notifyOnPause() called with size: "+mClientModules.size());
+        for (IModuleClient remoteClient : mClientModules.values()) {
             try {
-                remoteWindow.onPause();
+                remoteClient.onPause();
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -78,9 +93,10 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnRestart() {
-        for (IRemoteWindow remoteWindow : mWindows.keySet()) {
+        Log.d(TAG, "notifyOnRestart() called with size: "+mClientModules.size());
+        for (IModuleClient remoteClient : mClientModules.values()) {
             try {
-                remoteWindow.onRestart();
+                remoteClient.onRestart();
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -88,9 +104,10 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnStop() {
-        for (IRemoteWindow remoteWindow : mWindows.keySet()) {
+        Log.d(TAG, "notifyOnStop() called with size: "+mClientModules.size());
+        for (IModuleClient remoteClient : mClientModules.values()) {
             try {
-                remoteWindow.onStop();
+                remoteClient.onStop();
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -98,9 +115,10 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnDestroy() {
-        for (IRemoteWindow remoteWindow : mWindows.keySet()) {
+        Log.d(TAG, "notifyOnDestroy() called with size: "+mClientModules.size());
+        for (IModuleClient remoteClient : mClientModules.values()) {
             try {
-                remoteWindow.onDestroy();
+                remoteClient.onDestroy();
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -109,20 +127,18 @@ public class ModuleCenterService extends Service {
 
     ///////////////////
 
-    private final IRemoteWindowManager.Stub mRemoteBinder = new IRemoteWindowManager.Stub() {
-
+    private final IModuleServer.Stub mRemoteBinder = new IModuleServer.Stub() {
         @Override
-        public void addWindow(IRemoteWindow remoteWindow) throws RemoteException {
-            Log.d(TAG, "addWindow() called with: remoteWindow = [" + remoteWindow + "]");
-            mWindows.put(remoteWindow, remoteWindow);
+        public void registerModule(IModuleClient client) throws RemoteException {
+            Log.d(TAG, "registerModule() called with: client = [" + client.key() + "]");
+            mClientModules.put(client.key(), client);
         }
 
         @Override
-        public void removeWindow(IRemoteWindow remoteWindow) throws RemoteException {
-            Log.d(TAG, "addWindow() called with: remoteWindow = [" + remoteWindow + "]");
-            mWindows.remove(remoteWindow);
+        public void unregisterModule(IModuleClient client) throws RemoteException {
+            Log.d(TAG, "unregisterModule() called with: client = [" + client.key() + "]");
+            mClientModules.remove(client.key());
         }
-
     };
 
     public class LocalBinder extends Binder {

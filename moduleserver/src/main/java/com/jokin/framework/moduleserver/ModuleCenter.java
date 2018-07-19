@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.jokin.framework.modulesdk.iwindow.ILifecycable;
 
@@ -30,17 +31,20 @@ public class ModuleCenter implements ILifecycable {
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(TAG, "onServiceConnected() called with: name = [" + name + "], service = [" + service + "]");
             mService = ((ModuleCenterService.LocalBinder)service).getModuleCenterService();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG, "onServiceDisconnected() called with: name = [" + name + "]");
             mService = null;
         }
     };
 
     @Override
     public void onCreate(Bundle bundle) {
+        Log.d(TAG, "onCreate() called with:" + mService);
         if (mService != null) {
             mService.notifyOnCreate(bundle);
         }
@@ -48,6 +52,7 @@ public class ModuleCenter implements ILifecycable {
 
     @Override
     public void onStart() {
+        Log.d(TAG, "onStart() called with:" + mService);
         if (mService != null) {
             mService.notifyOnStart();
         }
@@ -55,6 +60,7 @@ public class ModuleCenter implements ILifecycable {
 
     @Override
     public void onRestart() {
+        Log.d(TAG, "onRestart() called with:" + mService);
         if (mService != null) {
             mService.notifyOnRestart();
         }
@@ -62,6 +68,7 @@ public class ModuleCenter implements ILifecycable {
 
     @Override
     public void onResume() {
+        Log.d(TAG, "onResume() called with:" + mService);
         if (mService != null) {
             mService.notifyOnResume();
         }
@@ -69,6 +76,7 @@ public class ModuleCenter implements ILifecycable {
 
     @Override
     public void onPause() {
+        Log.d(TAG, "onPause() called with:" + mService);
         if (mService != null) {
             mService.notifyOnPause();
         }
@@ -76,6 +84,7 @@ public class ModuleCenter implements ILifecycable {
 
     @Override
     public void onStop() {
+        Log.d(TAG, "onStop() called with:" + mService);
         if (mService != null) {
             mService.notifyOnStop();
         }
@@ -83,6 +92,7 @@ public class ModuleCenter implements ILifecycable {
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy() called with:" + mService);
         if (mService != null) {
             mService.notifyOnDestroy();
         }

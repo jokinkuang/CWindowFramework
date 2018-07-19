@@ -10,17 +10,17 @@ import com.jokin.framework.modulesdk.iwindow.IMovable;
  * Created by jokin on 2018/7/16 16:37.
  */
 
-public class MovableDelegate implements IMovable {
+public class MoveDelegate implements IMovable {
     private static final String TAG = "MovableDelegate";
+    private IWindow mWindow;
+    private IWindow.LayoutParams mParams;
+    private final int WINDOW_WIDTH = 1920;
+    private final int WINDOW_HEIGHT = 1080;
 
     private int mTouchLastX;
     private int mTouchLastY;
 
-    private IWindow mWindow;
-    private IWindow.LayoutParams mParams;
-
-
-    public MovableDelegate(IWindow target) {
+    public MoveDelegate(IWindow target) {
         mWindow = target;
     }
 
@@ -89,8 +89,8 @@ public class MovableDelegate implements IMovable {
 
     private void updateLimitsRect() {
         mLeftLimitX = 0;
-        mRightLimitX = 1920 - mParams.width;
+        mRightLimitX = WINDOW_WIDTH - mParams.width;
         mTopLimitY = 0;
-        mBottomLimitY = 1080 - mParams.height;
+        mBottomLimitY = WINDOW_HEIGHT - mParams.height;
     }
 }
