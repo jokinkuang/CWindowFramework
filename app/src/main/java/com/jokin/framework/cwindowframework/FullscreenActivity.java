@@ -34,11 +34,19 @@ public class FullscreenActivity extends AppCompatActivity {
         TextView textView = findViewById(R.id.fullscreen_content);
         textView.setText(textView.getText()+"\n"+String.valueOf(this.hashCode()));
 
+        findViewById(R.id.moduleA).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setComponent(new ComponentName("com.jokin.framework.modulea", "com.jokin.framework.modulea.ModuleAService"));
+                startService(intent);
+            }
+        });
         findViewById(R.id.moduleB).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.setComponent(new ComponentName("com.jokin.framework.moduleb", "com.jokin.framework.module.ModuleBService"));
+                intent.setComponent(new ComponentName("com.jokin.framework.moduleb", "com.jokin.framework.moduleb.ModuleBService"));
                 startService(intent);
             }
         });
