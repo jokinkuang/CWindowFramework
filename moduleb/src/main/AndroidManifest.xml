@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.jokin.framework.module">
+          package="com.jokin.framework.moduleb">
 
     <application
-        android:name=".ModuleApplication"
+        android:name="com.jokin.framework.moduleb.ModuleApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -11,12 +11,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".ModuleBService"
+            android:name="com.jokin.framework.moduleb.ModuleBService"
             android:enabled="true"
             android:exported="true">
         </service>
 
-        <activity android:name=".LauchActivity"
+        <activity android:name="com.jokin.framework.moduleb.LauchActivity"
             android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

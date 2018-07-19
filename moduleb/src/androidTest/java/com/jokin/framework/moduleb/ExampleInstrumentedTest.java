@@ -1,4 +1,4 @@
-package com.jokin.framework.module;
+package com.jokin.framework.moduleb;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

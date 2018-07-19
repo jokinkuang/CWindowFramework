@@ -38,7 +38,7 @@ public class FullscreenActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.setComponent(new ComponentName("com.jokin.framework.module", "com.jokin.framework.module.ModuleBService"));
+                intent.setComponent(new ComponentName("com.jokin.framework.moduleb", "com.jokin.framework.module.ModuleBService"));
                 startService(intent);
             }
         });

@@ -6,7 +6,7 @@ android {
 
 
     defaultConfig {
-        applicationId "com.jokin.framework.module"
+        applicationId "com.jokin.framework.moduleb"
         minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
