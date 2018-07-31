@@ -60,6 +60,7 @@ public final class CModuleManager implements IModuleManager {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG, "onServiceDisconnected() called with: name = [" + name + "]");
             mModuleServer = null;
         }
     };

@@ -19,7 +19,9 @@ public class ServerIntent {
     private static final String ACTION_SERVER_ACTIVITY_MAIN = "framework.server.activity.main";
 
     public static Intent getServerMainServiceIntent(Context context) {
-        return getExplicitIntent(context, new Intent(ACTION_SERVER_SERVICE_MAIN));
+        Intent intent = getExplicitIntent(context, new Intent(ACTION_SERVER_SERVICE_MAIN));
+        intent.putExtra("client.package.name", context.getPackageName());
+        return intent;
     }
 
     public static Intent getServerMainActivityIntent(Context context) {

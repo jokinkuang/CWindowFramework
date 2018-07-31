@@ -11,6 +11,7 @@ import android.util.Log;
 import com.jokin.framework.modulesdk.IModuleClient;
 import com.jokin.framework.modulesdk.IModuleServer;
 
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ModuleCenterService extends Service {
@@ -37,7 +38,7 @@ public class ModuleCenterService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         if (intent == null) {
-            Log.d(TAG, "onBind() called with: remote = [" + intent + "]");
+            Log.d(TAG, "onBind() called with intent null [" + intent + "]");
             return mRemoteBinder;
         }
         if (LOCAL.equalsIgnoreCase(intent.getAction())) {
@@ -48,79 +49,100 @@ public class ModuleCenterService extends Service {
         return mRemoteBinder;
     }
 
+    @Override
+    public boolean onUnbind(Intent intent) {
+        // TODO remote all listeners form the package!
+        Log.d(TAG, "onUnbind() called with: intent = [" + intent + "]");
+        return super.onUnbind(intent);
+    }
+
     public void notifyOnCreate(Bundle bundle) {
         Log.d(TAG, "notifyOnCreate() called with size: "+mClientModules.size());
-        for (IModuleClient remoteClient : mClientModules.values()) {
+        for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
+            IModuleClient remoteClient = iterator.next();
             try {
                 remoteClient.onCreate(bundle);
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                iterator.remove();
             }
         }
     }
 
     public void notifyOnStart() {
         Log.d(TAG, "notifyOnStart() called with size: "+mClientModules.size());
-        for (IModuleClient remoteClient : mClientModules.values()) {
+        for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
+            IModuleClient remoteClient = iterator.next();
             try {
                 remoteClient.onStart();
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                iterator.remove();
             }
         }
     }
 
     public void notifyOnResume() {
         Log.d(TAG, "notifyOnResume() called with size: "+mClientModules.size());
-        for (IModuleClient remoteClient : mClientModules.values()) {
+        for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
+            IModuleClient remoteClient = iterator.next();
             try {
                 remoteClient.onResume();
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                iterator.remove();
             }
         }
     }
 
     public void notifyOnPause() {
         Log.d(TAG, "notifyOnPause() called with size: "+mClientModules.size());
-        for (IModuleClient remoteClient : mClientModules.values()) {
+        for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
+            IModuleClient remoteClient = iterator.next();
             try {
                 remoteClient.onPause();
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                iterator.remove();
             }
         }
     }
 
     public void notifyOnRestart() {
         Log.d(TAG, "notifyOnRestart() called with size: "+mClientModules.size());
-        for (IModuleClient remoteClient : mClientModules.values()) {
+        for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
+            IModuleClient remoteClient = iterator.next();
             try {
                 remoteClient.onRestart();
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                iterator.remove();
             }
         }
     }
 
     public void notifyOnStop() {
         Log.d(TAG, "notifyOnStop() called with size: "+mClientModules.size());
-        for (IModuleClient remoteClient : mClientModules.values()) {
+        for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
+            IModuleClient remoteClient = iterator.next();
             try {
                 remoteClient.onStop();
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                iterator.remove();
             }
         }
     }
 
     public void notifyOnDestroy() {
         Log.d(TAG, "notifyOnDestroy() called with size: "+mClientModules.size());
-        for (IModuleClient remoteClient : mClientModules.values()) {
+        for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
+            IModuleClient remoteClient = iterator.next();
             try {
                 remoteClient.onDestroy();
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                iterator.remove();
             }
         }
     }

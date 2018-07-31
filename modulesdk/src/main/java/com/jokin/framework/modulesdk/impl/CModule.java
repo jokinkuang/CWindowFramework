@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CModule implements IClientModule {
     private static final String TAG = "CModule";
-    private final int mKey;
+    private final String mKey;
 
     private ConcurrentHashMap<ILifecycable, ILifecycable> mLifecycables = new ConcurrentHashMap<>(10);
     private Context mContext;
@@ -25,7 +25,7 @@ public class CModule implements IClientModule {
 
     public CModule(Context context) {
         mContext = context;
-        mKey = this.hashCode();
+        mKey = mContext.getPackageName()+":"+this.hashCode();
 
         if (sModuleManager == null) {
             sModuleManager = new CModuleManager(context);
