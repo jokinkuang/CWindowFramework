@@ -16,10 +16,23 @@ import java.util.List;
 public class ServerIntent {
     private static final String TAG = "ServerIntent";
     private static final String ACTION_SERVER_SERVICE_MAIN = "framework.server.service.main";
+    private static final String ACTION_SERVER_SERVICE_VIEW = "framework.server.service.view";
     private static final String ACTION_SERVER_ACTIVITY_MAIN = "framework.server.activity.main";
 
     public static Intent getServerMainServiceIntent(Context context) {
         Intent intent = getExplicitIntent(context, new Intent(ACTION_SERVER_SERVICE_MAIN));
+        if (intent == null) {
+            return null;
+        }
+        intent.putExtra("client.package.name", context.getPackageName());
+        return intent;
+    }
+
+    public static Intent getServerViewServiceIntent(Context context) {
+        Intent intent = getExplicitIntent(context, new Intent(ACTION_SERVER_SERVICE_VIEW));
+        if (intent == null) {
+            return null;
+        }
         intent.putExtra("client.package.name", context.getPackageName());
         return intent;
     }

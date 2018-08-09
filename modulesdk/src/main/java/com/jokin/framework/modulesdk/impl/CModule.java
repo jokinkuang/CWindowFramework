@@ -6,12 +6,15 @@ import android.util.Log;
 
 import com.jokin.framework.modulesdk.IClientModule;
 import com.jokin.framework.modulesdk.IWindowManager;
+import com.jokin.framework.modulesdk.constant.Constants;
 import com.jokin.framework.modulesdk.iwindow.ILifecycable;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by jokin on 2018/7/16 10:57.
+ *
+ * Module
  */
 
 public class CModule implements IClientModule {
@@ -21,11 +24,12 @@ public class CModule implements IClientModule {
     private ConcurrentHashMap<ILifecycable, ILifecycable> mLifecycables = new ConcurrentHashMap<>(10);
     private Context mContext;
     private IWindowManager mWindowManager;
+
     private static volatile CModuleManager sModuleManager;
 
     public CModule(Context context) {
         mContext = context;
-        mKey = mContext.getPackageName()+":"+this.hashCode();
+        mKey = mContext.getPackageName()+ Constants.KEY_SEPARATOR+this.hashCode();
 
         if (sModuleManager == null) {
             sModuleManager = new CModuleManager(context);
@@ -83,6 +87,7 @@ public class CModule implements IClientModule {
     @Override
     public void onDestroy() {
         // Passive destroy(被动）
+        Log.i(TAG, "## Passive onDestroy()");
         destroy();
     }
 

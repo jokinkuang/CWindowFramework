@@ -70,10 +70,10 @@ public class MoveDelegate implements IMovable {
     private void transformParams(int x, int y) {
         mParams.x += x;
         mParams.y += y;
-        mParams.x = mParams.x < mLeftLimitX ? mLeftLimitX : mParams.x;
-        mParams.x = mParams.x > mRightLimitX ? mRightLimitX : mParams.x;
-        mParams.y = mParams.y < mTopLimitY ? mTopLimitY : mParams.y;
-        mParams.y = mParams.y > mBottomLimitY ? mBottomLimitY : mParams.y;
+        // mParams.x = mParams.x < mLeftLimitX ? mLeftLimitX : mParams.x;
+        // mParams.x = mParams.x > mRightLimitX ? mRightLimitX : mParams.x;
+        // mParams.y = mParams.y < mTopLimitY ? mTopLimitY : mParams.y;
+        // mParams.y = mParams.y > mBottomLimitY ? mBottomLimitY : mParams.y;
     }
 
     public void onEnd(int x, int y) {

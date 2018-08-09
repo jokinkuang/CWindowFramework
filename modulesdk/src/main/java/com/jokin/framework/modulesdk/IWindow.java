@@ -1,5 +1,6 @@
 package com.jokin.framework.modulesdk;
 
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -8,6 +9,10 @@ import android.view.ViewGroup;
 import com.jokin.framework.modulesdk.iwindow.ILifecycable;
 import com.jokin.framework.modulesdk.iwindow.IMovable;
 import com.jokin.framework.modulesdk.iwindow.IResizable;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by jokin on 2018/7/16 10:51.
@@ -59,6 +64,36 @@ public interface IWindow extends IResizable, IMovable, ILifecycable {
 
         public LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
+        }
+
+        public LayoutParams X(int x) {
+            this.x = x;
+            return this;
+        }
+
+        public LayoutParams Y(int y) {
+            this.y = y;
+            return this;
+        }
+
+        public LayoutParams Width(int width) {
+            this.width = width;
+            return this;
+        }
+
+        public LayoutParams Height(int height) {
+            this.height = height;
+            return this;
+        }
+
+        public LayoutParams Gravity(int gravity) {
+            this.gravity = gravity;
+            return this;
+        }
+
+        public LayoutParams Flags(int flags) {
+            this.flags = flags;
+            return this;
         }
 
         @Override
@@ -123,6 +158,41 @@ public interface IWindow extends IResizable, IMovable, ILifecycable {
 
             public LayoutParams build() {
                 return mLayoutParams;
+            }
+        }
+    }
+
+    ///////////////////////
+
+    class Dump {
+        private static final String TAG = "Dump";
+        private static Map<String, Integer> sGravitys = new LinkedHashMap<>(10);
+        static {
+            sGravitys.put("Gravity.Center", Gravity.CENTER);
+            sGravitys.put("Gravity.Center_Horizontal", Gravity.CENTER_HORIZONTAL);
+            sGravitys.put("Gravity.Center_Vertical", Gravity.CENTER_VERTICAL);
+            sGravitys.put("Gravity.Left", Gravity.LEFT);
+            sGravitys.put("Gravity.Top", Gravity.TOP);
+            sGravitys.put("Gravity.Right", Gravity.RIGHT);
+            sGravitys.put("Gravity.Bottom", Gravity.BOTTOM);
+            sGravitys.put("Gravity.Left|Top", Gravity.LEFT|Gravity.TOP);
+            sGravitys.put("Gravity.Right|Bottom", Gravity.RIGHT|Gravity.BOTTOM);
+            // Gravity.Center = #11
+            // Gravity.Center_Horizontal = #1
+            // Gravity.Center_Vertical = #10
+            // Gravity.Left = #3
+            // Gravity.Top = #30
+            // Gravity.Right = #5
+            // Gravity.Bottom = #50
+            // Gravity.Left|Top = #33
+            // Gravity.Right|Bottom = #55
+        }
+
+        public static void dumpGravity() {
+            for (Iterator<Map.Entry<String, Integer>> iterator = sGravitys.entrySet().iterator();
+                    iterator.hasNext();) {
+                Map.Entry<String, Integer> entry = iterator.next();
+                Log.d(TAG, "dumpGravity: " + entry.getKey() + " = #" + Integer.toHexString(entry.getValue()));
             }
         }
     }

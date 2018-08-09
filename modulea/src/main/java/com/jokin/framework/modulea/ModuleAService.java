@@ -3,10 +3,12 @@ package com.jokin.framework.modulea;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.Process;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 
 import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.delegate.MaximizeDelegate;
@@ -42,11 +44,12 @@ public class ModuleAService extends Service implements View.OnClickListener {
         });
 
         mWindow = (CWindow) LayoutInflater.from(this).inflate(R.layout.layout_window, null, false);
-        mWindow.setWindowLayoutParams(new IWindow.LayoutParams.Builder().build());
+        mWindow.setWindowLayoutParams(new IWindow.LayoutParams.Builder().x(300).y(200).build());
         mWindow.findViewById(R.id.btn_close).setOnClickListener(this);
         mWindow.findViewById(R.id.btn_min).setOnClickListener(this);
         mWindow.findViewById(R.id.btn_max).setOnClickListener(this);
         mWindow.findViewById(R.id.btn_scale).setOnClickListener(this);
+        mWindow.findViewById(R.id.btn_crash).setOnClickListener(this);
 
         mScaleDelegate = new ScaleDelegate(mWindow);
         mMinimizeDelegate = new MinimizeDelegate(mWindow);
@@ -64,6 +67,9 @@ public class ModuleAService extends Service implements View.OnClickListener {
                 return false;
             }
         });
+
+        TextView textView = mWindow.findViewById(R.id.text);
+        textView.setText(textView.getText()+" Process:"+ Process.myPid());
     }
 
     @Override
@@ -98,6 +104,10 @@ public class ModuleAService extends Service implements View.OnClickListener {
                 break;
             case R.id.btn_max:
                 onClickBtnMax();
+                break;
+            case R.id.btn_crash:
+                View view = null;
+                view.getTag();
                 break;
             case R.id.btn_scale:
                 onClickBtnDrag();

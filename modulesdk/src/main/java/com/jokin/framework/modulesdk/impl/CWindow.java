@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.jokin.framework.modulesdk.IWindow;
@@ -18,9 +19,16 @@ import com.jokin.framework.modulesdk.delegate.MoveDelegate;
  * Created by jokin on 2018/7/16 10:51.
  */
 
-public class CWindow extends FrameLayout implements IWindow, View.OnTouchListener {
+public class CWindow extends FrameLayout implements IWindow {
     private static final String TAG = "CWindow";
     protected IWindow.LayoutParams mWindowLayoutParams;
+    protected WindowManager.LayoutParams mLastLayoutParams;
+
+    private int mLastX;
+    private int mLastY;
+    private int mLastWidth;
+    private int mLastHeight;
+    private boolean mMovable = true;
 
     public CWindow(@NonNull Context context) {
         super(context);
@@ -32,8 +40,23 @@ public class CWindow extends FrameLayout implements IWindow, View.OnTouchListene
         init();
     }
 
+    public CWindow(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    public CWindow(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        init();
+    }
+
     private void init() {
-        setOnTouchListener(this);
+        mWindowLayoutParams = new IWindow.LayoutParams.Builder().build();
+
+        mLastX = mWindowLayoutParams.x;
+        mLastY = mWindowLayoutParams.y;
+        mLastWidth = mWindowLayoutParams.width;
+        mLastHeight = mWindowLayoutParams.height;
     }
 
     @Override
@@ -81,13 +104,29 @@ public class CWindow extends FrameLayout implements IWindow, View.OnTouchListene
     }
 
     @Override
-    public void onMinimize() {
-
+    public void onMinimizeStart() {
+        setWindowLayoutParams(getWindowLayoutParams()
+                .X(mLastX).Y(mLastY)
+                .Width(mLastWidth).Height(mLastHeight));
     }
 
     @Override
-    public void onMaximize() {
+    public void onMinimizeEnd() {
+        mMovable = true;
+    }
 
+    @Override
+    public void onMaximizeStart() {
+        mLastX = getWindowLayoutParams().x;
+        mLastY = getWindowLayoutParams().y;
+        mLastWidth = getWindowLayoutParams().width;
+        mLastHeight = getWindowLayoutParams().height;
+        mMovable = false;
+    }
+
+    @Override
+    public void onMaximizeEnd() {
+        // nop
     }
 
     @Override
@@ -109,6 +148,36 @@ public class CWindow extends FrameLayout implements IWindow, View.OnTouchListene
         if (mWindowManager != null) {
             mWindowManager.updateWindow(this, layoutParams);
         }
+    }
+
+    private boolean equals(WindowManager.LayoutParams params1, WindowManager.LayoutParams params2) {
+        if (params1 != null && params2 == null) {
+            Log.d(TAG, "equals: f");
+            return false;
+        }
+        if (params1 == null && params2 != null) {
+            Log.d(TAG, "equals: f2");
+            return false;
+        }
+        if (params1.x != params2.x) {
+            return false;
+        }
+        if (params1.y != params2.y) {
+            return false;
+        }
+        if (params1.flags != params2.flags) {
+            return false;
+        }
+        if (params1.gravity != params2.gravity) {
+            return false;
+        }
+        if (params1.width != params2.width) {
+            return false;
+        }
+        if (params1.height != params2.height) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -141,8 +210,10 @@ public class CWindow extends FrameLayout implements IWindow, View.OnTouchListene
     private MoveDelegate mMovableDelegate = new MoveDelegate(this);
 
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        mMovableDelegate.handleEvent(event);
+    public boolean onTouchEvent(MotionEvent event) {
+        if (mMovable) {
+            mMovableDelegate.handleEvent(event);
+        }
         return true;
     }
 

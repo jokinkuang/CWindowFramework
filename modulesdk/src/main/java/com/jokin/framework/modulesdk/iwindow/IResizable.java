@@ -5,9 +5,11 @@ package com.jokin.framework.modulesdk.iwindow;
  */
 
 public interface IResizable {
-    void onMinimize();
+    void onMinimizeStart();
+    void onMinimizeEnd();
 
-    void onMaximize();
+    void onMaximizeStart();
+    void onMaximizeEnd();
 
     void onTransform(int x, int y, int width, int height);
 }

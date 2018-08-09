@@ -10,13 +10,13 @@ import android.util.Log;
 
 import com.jokin.framework.modulesdk.IModuleClient;
 import com.jokin.framework.modulesdk.IModuleServer;
+import com.jokin.framework.modulesdk.constant.Constants;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ModuleCenterService extends Service {
     private static final String TAG = ModuleCenterService.class.getSimpleName();
-    public static final String LOCAL = "FROM_LOCAL";
 
     private ConcurrentHashMap<String, IModuleClient> mClientModules = new ConcurrentHashMap<>(15);
 
@@ -39,14 +39,14 @@ public class ModuleCenterService extends Service {
     public IBinder onBind(Intent intent) {
         if (intent == null) {
             Log.d(TAG, "onBind() called with intent null [" + intent + "]");
-            return mRemoteBinder;
+            return mModuleServer;
         }
-        if (LOCAL.equalsIgnoreCase(intent.getAction())) {
+        if (Constants.BINDER_LOCAL.equalsIgnoreCase(intent.getAction())) {
             Log.d(TAG, "onBind() called with: local = [" + intent + "]");
             return new LocalBinder();
         }
         Log.d(TAG, "onBind() called with: remote = [" + intent + "]");
-        return mRemoteBinder;
+        return mModuleServer;
     }
 
     @Override
@@ -149,7 +149,7 @@ public class ModuleCenterService extends Service {
 
     ///////////////////
 
-    private final IModuleServer.Stub mRemoteBinder = new IModuleServer.Stub() {
+    private final IModuleServer.Stub mModuleServer = new IModuleServer.Stub() {
         @Override
         public void registerModule(IModuleClient client) throws RemoteException {
             Log.d(TAG, "registerModule() called with: client = [" + client.key() + "]");
@@ -164,7 +164,7 @@ public class ModuleCenterService extends Service {
     };
 
     public class LocalBinder extends Binder {
-        public ModuleCenterService getModuleCenterService() {
+        public ModuleCenterService getServiceInstance() {
             return ModuleCenterService.this;
         }
     };

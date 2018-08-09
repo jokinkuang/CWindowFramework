@@ -8,12 +8,15 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
 import com.jokin.framework.modulesdk.IClientModule;
 import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.IWindowManager;
 
+import java.lang.ref.WeakReference;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 
@@ -53,7 +56,8 @@ public final class CWindowManager implements IWindowManager {
         mDefaultLayoutParams = new WindowManager.LayoutParams();
         mDefaultLayoutParams.type = WINDOW_TYPE;
         mDefaultLayoutParams.format = PixelFormat.RGBA_8888;
-        mDefaultLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        mDefaultLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE;
         mDefaultLayoutParams.gravity = Gravity.LEFT | Gravity.TOP;
         mDefaultLayoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
         mDefaultLayoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
@@ -99,6 +103,7 @@ public final class CWindowManager implements IWindowManager {
         // make sure window is pure before add
         window.detachWindowManager();
         window.setWindowLayoutParams(layoutParams);
+        window.getContentView().setLayoutParams(toWindowLayoutParams(layoutParams));
 
         addView(contentView, layoutParams);
         window.attachWindowManager(this);
@@ -140,6 +145,28 @@ public final class CWindowManager implements IWindowManager {
             Log.d(TAG, "updateWindow: save layoutParams to window");
             window.setWindowLayoutParams(toLayoutParams((WindowManager.LayoutParams) contentView.getLayoutParams()));
         }
+    }
+
+    @Override
+    public void updateWindow(IWindow window, ViewGroup.LayoutParams layoutParams) {
+        View contentView = window.getContentView();
+        if (contentView == null) {
+            throw new NullPointerException("window::getContentView() cannot be null");
+        }
+        if (! checkPermission()) {
+            return;
+        }
+        if (! hasAdded(contentView)) {
+            throw new InvalidParameterException("Window::updateWindow() window has not been added");
+        }
+        contentView.requestLayout();
+        mWindowManager.updateViewLayout(contentView, layoutParams);
+
+        // Careful dead loop!! window.setWindowLayoutParams() may cause updateWindow() again !!
+        // if (layoutParams != window.getWindowLayoutParams()) {
+        //     Log.d(TAG, "updateWindow: save layoutParams to window");
+        //     window.setWindowLayoutParams(toLayoutParams((WindowManager.LayoutParams) contentView.getLayoutParams()));
+        // }
     }
 
     ///////// Android's WindowManager ///////////
@@ -186,6 +213,26 @@ public final class CWindowManager implements IWindowManager {
     private void removeView(View view) {
         mWindowManager.removeViewImmediate(view);
     }
+
+    ////////////////////////////////
+
+    private static class GlobalLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {
+        private WeakReference<View> mTarget;
+
+        public GlobalLayoutListener(View view) {
+            mTarget = new WeakReference<View>(view);
+        }
+
+        @Override
+        public void onGlobalLayout() {
+            if (mTarget.get() == null) {
+                return;
+            }
+            mTarget.get().getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        }
+    }
+
+    ////////////////////////////////
 
     private WindowManager.LayoutParams toWindowLayoutParams(IWindow.LayoutParams params) {
         WindowManager.LayoutParams windowParams = new WindowManager.LayoutParams();

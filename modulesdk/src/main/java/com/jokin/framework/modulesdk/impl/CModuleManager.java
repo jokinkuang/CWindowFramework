@@ -18,6 +18,8 @@ import java.util.HashMap;
 
 /**
  * Created by jokin on 2018/7/16 10:53.
+ *
+ * Module Register
  */
 
 public final class CModuleManager implements IModuleManager {
@@ -33,7 +35,7 @@ public final class CModuleManager implements IModuleManager {
     }
 
     private void init() {
-        Log.d(TAG, "init() called");
+        Log.i(TAG, "## Init()");
         Intent intentService = ServerIntent.getServerMainServiceIntent(mContext);
         mContext.bindService(intentService, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
@@ -42,6 +44,7 @@ public final class CModuleManager implements IModuleManager {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "onServiceConnected() called with: name = [" + name + "], service = [" + service + "]");
+            Log.i(TAG, "## ServiceConnected");
             mModuleServer = IModuleServer.Stub.asInterface(service);
 
             for (IClientModule module : mClientModules.values()) {
@@ -61,7 +64,20 @@ public final class CModuleManager implements IModuleManager {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "onServiceDisconnected() called with: name = [" + name + "]");
+            Log.i(TAG, "## ServiceDisconnected");
+
+            /** When disconnected, no more unregister through IPC */
+
+            // 1. unbind and mark IPC has broken
+            mContext.unbindService(mServiceConnection);
             mModuleServer = null;
+            // 2. notify upwards
+            IClientModule[] modules = mClientModules.values().toArray(new IClientModule[mClientModules.size()]);
+            for (IClientModule module : modules) {
+                module.onDestroy();
+            }
+            // 3. clear
+            mClientModules.clear();
         }
     };
 
@@ -71,25 +87,32 @@ public final class CModuleManager implements IModuleManager {
      */
     public boolean tryDestroy() {
         if (mClientModules.size() == 0) {
+            Log.i(TAG, "## TryDestroy: destroy() now");
             destroy();
             return true;
         }
         return false;
     }
 
+    /**
+     * Destroy from local, not from IPC remote
+     **/
     @Override
     public void destroy() {
-        Log.d(TAG, "destroy() called");
-        // Careful re entrant
+        Log.i(TAG, "## Destroy()");
+        Log.i(TAG, "## modules size: "+mClientModules.size());
         if (mModuleServer != null) {
+            // 1. unregister by IPC
             IClientModule[] modules = mClientModules.values().toArray(new IClientModule[mClientModules.size()]);
             for (IClientModule module : modules) {
                 unregisterModule(module);
             }
-            mClientModules.clear();
-
+            // 2. real broken the IPC and mark IPC has broken
             mContext.unbindService(mServiceConnection);
             mModuleServer = null;
+            // 4. clear
+            mClientModules.clear();
+            Log.i(TAG, "## ##");
         }
     }
 
@@ -100,6 +123,7 @@ public final class CModuleManager implements IModuleManager {
         }
         if (mModuleServer != null) {
             try {
+                Log.i(TAG, "## RegisterModule:"+module);
                 mModuleServer.registerModule(new RemoteModuleBridge(module));
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -113,11 +137,16 @@ public final class CModuleManager implements IModuleManager {
         if (module == null) {
             return;
         }
+        if (! mClientModules.containsKey(module.hashCode())) {
+            Log.w(TAG, "## UnregisterModule not found module:"+module);
+            return;
+        }
         if (mModuleServer != null) {
             try {
+                Log.i(TAG, "## UnregisterModule:"+module);
                 mModuleServer.unregisterModule(new RemoteModuleBridge(module));
             } catch (RemoteException e) {
-                e.printStackTrace();
+                Log.e(TAG, "", e);
             }
         }
         mClientModules.remove(module.hashCode());

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.jokin.framework.modulesdk.IClientModule;
 import com.jokin.framework.modulesdk.IModuleClient;
@@ -13,6 +14,7 @@ import com.jokin.framework.modulesdk.IModuleClient;
  */
 
 public class RemoteModuleBridge extends IModuleClient.Stub {
+    private static final String TAG = "RemoteServer";
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private IClientModule mModule;
@@ -31,6 +33,7 @@ public class RemoteModuleBridge extends IModuleClient.Stub {
 
     @Override
     public void onCreate(final Bundle bundle) throws RemoteException {
+        Log.i(TAG, "## Receive onCreate");
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -41,6 +44,7 @@ public class RemoteModuleBridge extends IModuleClient.Stub {
 
     @Override
     public void onStart() throws RemoteException {
+        Log.i(TAG, "## Receive onStart");
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -51,6 +55,7 @@ public class RemoteModuleBridge extends IModuleClient.Stub {
 
     @Override
     public void onRestart() throws RemoteException {
+        Log.i(TAG, "## Receive onRestart");
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -61,6 +66,7 @@ public class RemoteModuleBridge extends IModuleClient.Stub {
 
     @Override
     public void onResume() throws RemoteException {
+        Log.i(TAG, "## Receive onResume");
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -71,6 +77,7 @@ public class RemoteModuleBridge extends IModuleClient.Stub {
 
     @Override
     public void onPause() throws RemoteException {
+        Log.i(TAG, "## Receive onPause");
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -81,6 +88,7 @@ public class RemoteModuleBridge extends IModuleClient.Stub {
 
     @Override
     public void onStop() throws RemoteException {
+        Log.i(TAG, "## Receive onStop");
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -91,6 +99,7 @@ public class RemoteModuleBridge extends IModuleClient.Stub {
 
     @Override
     public void onDestroy() throws RemoteException {
+        Log.i(TAG, "## Receive onDestroy");
         mHandler.post(new Runnable() {
             @Override
             public void run() {

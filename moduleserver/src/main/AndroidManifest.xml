@@ -11,6 +11,14 @@
                 <action android:name="framework.server.service.main"/>
             </intent-filter>
         </service>
+        <service
+            android:name=".ViewCenterService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="framework.server.service.view"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
