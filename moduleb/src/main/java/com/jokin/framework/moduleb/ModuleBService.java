@@ -80,7 +80,7 @@ public class ModuleBService extends Service implements View.OnClickListener {
             public boolean onTouch(View v, MotionEvent event) {
                 Log.d(TAG, "onTouch() called with: v = [" + v + "], event = [" + event + "]");
                 if (v.getId() == R.id.btn_scale) {
-                    mScaleDelegate.handleEvent(event);
+                    mWindow.getResizeDelegate().scale(event);
                     return true;
                 }
                 return false;
@@ -159,11 +159,11 @@ public class ModuleBService extends Service implements View.OnClickListener {
     }
 
     private void onClickBtnMin() {
-        mMinimizeDelegate.minimize();
+        mWindow.getResizeDelegate().minimize();
     }
 
     private void onClickBtnMax() {
-        mMaximizeDelegate.maximize();
+        mWindow.getResizeDelegate().maximize();
     }
 
     private boolean mStart = false;

@@ -1,8 +1,10 @@
 package com.jokin.framework.modulesdk.delegate;
 
+import android.view.Gravity;
 import android.view.ViewGroup;
 
 import com.jokin.framework.modulesdk.IWindow;
+import com.jokin.framework.modulesdk.iwindow.IBaseWindow;
 
 import java.security.InvalidParameterException;
 
@@ -11,12 +13,12 @@ import java.security.InvalidParameterException;
  */
 
 public class MaximizeDelegate {
-    private static final String TAG = "MinimizeDelegate";
+    private static final String TAG = MaximizeDelegate.class.getSimpleName();
 
-    private IWindow mWindow;
+    private IBaseWindow mWindow;
     private IWindow.LayoutParams mParams;
 
-    public MaximizeDelegate(IWindow target) {
+    public MaximizeDelegate(IBaseWindow target) {
         if (target == null) {
             throw new InvalidParameterException("target cannot be null");
         }
@@ -29,6 +31,7 @@ public class MaximizeDelegate {
         mParams = mWindow.getWindowLayoutParams();
         mParams.x = 0;
         mParams.y = 0;
+        mParams.gravity = Gravity.LEFT | Gravity.TOP;
         mParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
         mParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
         mWindow.setWindowLayoutParams(mParams);

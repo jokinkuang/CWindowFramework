@@ -4,31 +4,33 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import com.jokin.framework.modulesdk.IWindow;
-import com.jokin.framework.modulesdk.iwindow.IMovable;
+import com.jokin.framework.modulesdk.iwindow.IBaseWindow;
+
+import java.security.InvalidParameterException;
 
 /**
  * Created by jokin on 2018/7/16 16:37.
  */
 
-public class MoveDelegate implements IMovable {
-    private static final String TAG = "MovableDelegate";
-    private IWindow mWindow;
-    private IWindow.LayoutParams mParams;
+public class MoveDelegate {
+    private static final String TAG = MoveDelegate.class.getSimpleName();
+
     private final int WINDOW_WIDTH = 1920;
     private final int WINDOW_HEIGHT = 1080;
 
+    private IBaseWindow mWindow;
+    private IWindow.LayoutParams mParams;
     private int mTouchLastX;
     private int mTouchLastY;
 
-    public MoveDelegate(IWindow target) {
+    public MoveDelegate(IBaseWindow target) {
+        if (target == null) {
+            throw new InvalidParameterException("target cannot be null");
+        }
         mWindow = target;
     }
 
-    @Override
-    public void onMove(int x, int y) {
-    }
-
-    public void handleEvent(MotionEvent event) {
+    public void move(MotionEvent event) {
         int x = (int) event.getRawX();
         int y = (int) event.getRawY();
         switch (event.getAction()) {
@@ -56,6 +58,7 @@ public class MoveDelegate implements IMovable {
         Log.d(TAG, "onStart() called with: x = [" + x + "], y = [" + y + "]");
         mParams = mWindow.getWindowLayoutParams();
         updateLimitsRect();
+        mWindow.onMoveStart();
     }
 
     public void onContinue(int x, int y) {
@@ -65,6 +68,7 @@ public class MoveDelegate implements IMovable {
         }
         transformParams(x, y);
         mWindow.setWindowLayoutParams(mParams);
+        mWindow.onMoving();
     }
 
     private void transformParams(int x, int y) {
@@ -79,6 +83,7 @@ public class MoveDelegate implements IMovable {
     public void onEnd(int x, int y) {
         Log.d(TAG, "onEnd() called with: x = [" + x + "], y = [" + y + "]");
         mWindow.setWindowLayoutParams(mParams);
+        mWindow.onMoveEnd();
     }
 
 

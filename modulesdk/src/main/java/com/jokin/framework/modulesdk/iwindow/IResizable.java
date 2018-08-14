@@ -11,5 +11,11 @@ public interface IResizable {
     void onMaximizeStart();
     void onMaximizeEnd();
 
-    void onTransform(int x, int y, int width, int height);
+    void onScaleStart();
+    void onScaling();
+    void onScaleEnd();
+
+    void onMoveStart();
+    void onMoving();
+    void onMoveEnd();
 }

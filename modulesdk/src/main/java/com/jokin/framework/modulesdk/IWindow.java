@@ -3,12 +3,10 @@ package com.jokin.framework.modulesdk;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
 
+import com.jokin.framework.modulesdk.iwindow.IBaseWindow;
 import com.jokin.framework.modulesdk.iwindow.ILifecycable;
-import com.jokin.framework.modulesdk.iwindow.IMovable;
-import com.jokin.framework.modulesdk.iwindow.IResizable;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -18,15 +16,7 @@ import java.util.Map;
  * Created by jokin on 2018/7/16 10:51.
  */
 
-public interface IWindow extends IResizable, IMovable, ILifecycable {
-
-    /**
-     * @return the view of the window
-     */
-    View getContentView();
-
-    void setWindowLayoutParams(IWindow.LayoutParams layoutParams);
-    IWindow.LayoutParams getWindowLayoutParams();
+public interface IWindow extends IBaseWindow, ILifecycable {
 
     void attachWindowManager(IWindowManager windowManager);
     void detachWindowManager();
@@ -36,12 +26,10 @@ public interface IWindow extends IResizable, IMovable, ILifecycable {
      */
     void notifyActivated();
 
-
     /**
      * 通知：触摸事件
      */
     boolean onTouch(MotionEvent event);
-
 
     //////////////////////
 
@@ -95,6 +83,28 @@ public interface IWindow extends IResizable, IMovable, ILifecycable {
             this.flags = flags;
             return this;
         }
+
+        public LayoutParams from(LayoutParams target) {
+            width = target.width;
+            height = target.height;
+            x = target.x;
+            y = target.y;
+            gravity = target.gravity;
+            flags = target.flags;
+            return this;
+        }
+
+        public LayoutParams copy() {
+            LayoutParams layoutParams = new LayoutParams();
+            layoutParams.width = width;
+            layoutParams.height = height;
+            layoutParams.x = x;
+            layoutParams.y = y;
+            layoutParams.gravity = gravity;
+            layoutParams.flags = flags;
+            return layoutParams;
+        }
+
 
         @Override
         public boolean equals(Object obj) {

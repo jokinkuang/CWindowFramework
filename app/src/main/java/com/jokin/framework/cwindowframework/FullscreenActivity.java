@@ -16,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.jokin.framework.modulesdk.view.CRemoteView;
+import com.jokin.framework.modulesdk.view.CViewWindow;
 import com.jokin.framework.moduleserver.IRemoteViewListener;
 import com.jokin.framework.moduleserver.ModuleCenter;
 import com.jokin.framework.moduleserver.RemoteLayoutInflater;
@@ -80,8 +81,9 @@ public class FullscreenActivity extends AppCompatActivity {
                     Log.w(TAG, "## Add: already add view " + view);
                     return;
                 }
-                View realView = RemoteLayoutInflater.from(mContext, view.getPackage()).inflate(view.getLayoutId(), mRootView, false);
+                CViewWindow realView = (CViewWindow) RemoteLayoutInflater.from(mContext, view.getPackage()).inflate(view.getLayoutId(), mRootView, false);
                 Log.d(TAG, "onAdd: realView" + realView);
+                realView.notifyActivated();
                 mRootView.addView(realView);
                 realView.setTag(view.key());
                 mRemoteViews.put(view.key(), realView);

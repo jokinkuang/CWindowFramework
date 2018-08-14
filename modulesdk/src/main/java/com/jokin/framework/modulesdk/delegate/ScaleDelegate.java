@@ -5,14 +5,18 @@ import android.view.MotionEvent;
 import android.view.ViewGroup;
 
 import com.jokin.framework.modulesdk.IWindow;
+import com.jokin.framework.modulesdk.iwindow.IBaseWindow;
+
+import java.security.InvalidParameterException;
 
 /**
  * Created by jokin on 2018/7/19 10:36.
  */
 
 public class ScaleDelegate {
-    private static final String TAG = "ScaleDelegate";
-    private IWindow mWindow;
+    private static final String TAG = ScaleDelegate.class.getSimpleName();
+
+    private IBaseWindow mWindow;
     private IWindow.LayoutParams mParams;
     private ViewGroup.LayoutParams mContentParams;
 
@@ -24,11 +28,14 @@ public class ScaleDelegate {
     private int mTouchLastX;
     private int mTouchLastY;
 
-    public ScaleDelegate(IWindow target) {
+    public ScaleDelegate(IBaseWindow target) {
+        if (target == null) {
+            throw new InvalidParameterException("target cannot be null");
+        }
         mWindow = target;
     }
 
-    public void handleEvent(MotionEvent event) {
+    public void scale(MotionEvent event) {
         Log.d(TAG, "handleEvent() called with: event = [" + event + "]");
         int x = (int) event.getRawX();
         int y = (int) event.getRawY();
@@ -66,6 +73,7 @@ public class ScaleDelegate {
         mParams.height = mWindow.getContentView().getHeight();
         Log.d(TAG, "onStart: "+mParams);
         mContentParams = mWindow.getContentView().getLayoutParams();
+        mWindow.onScaleStart();
     }
 
     private void onContinue(int x, int y) {
@@ -79,6 +87,7 @@ public class ScaleDelegate {
         mParams.height += y;
         Log.d(TAG, "onContinue: new width="+mParams.width+", height="+mParams.height);
         mWindow.setWindowLayoutParams(mParams);
+        mWindow.onScaling();
         // mWindow.getContentView().setLayoutParams(mContentParams);
     }
 
@@ -99,7 +108,7 @@ public class ScaleDelegate {
 
     private void onEnd(int x, int y) {
         Log.d(TAG, "onEnd() called with: x = [" + x + "], y = [" + y + "]");
-
+        mWindow.onScaleEnd();
         // mContentParams.width = x;
         // mContentParams.height = y;
         // mWindow.getContentView().setLayoutParams(mContentParams);

@@ -14,21 +14,17 @@ import android.widget.FrameLayout;
 import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.IWindowManager;
 import com.jokin.framework.modulesdk.delegate.MoveDelegate;
+import com.jokin.framework.modulesdk.delegate.ResizeDelegate;
 
 /**
  * Created by jokin on 2018/7/16 10:51.
  */
 
 public class CWindow extends FrameLayout implements IWindow {
-    private static final String TAG = "CWindow";
-    protected IWindow.LayoutParams mWindowLayoutParams;
-    protected WindowManager.LayoutParams mLastLayoutParams;
+    private static final String TAG = CWindow.class.getSimpleName();
 
-    private int mLastX;
-    private int mLastY;
-    private int mLastWidth;
-    private int mLastHeight;
-    private boolean mMovable = true;
+    protected IWindow.LayoutParams mWindowLayoutParams;
+    protected ResizeDelegate mResizeDelegate;
 
     public CWindow(@NonNull Context context) {
         super(context);
@@ -52,11 +48,11 @@ public class CWindow extends FrameLayout implements IWindow {
 
     private void init() {
         mWindowLayoutParams = new IWindow.LayoutParams.Builder().build();
+        mResizeDelegate = new ResizeDelegate(this);
+    }
 
-        mLastX = mWindowLayoutParams.x;
-        mLastY = mWindowLayoutParams.y;
-        mLastWidth = mWindowLayoutParams.width;
-        mLastHeight = mWindowLayoutParams.height;
+    public ResizeDelegate getResizeDelegate() {
+        return mResizeDelegate;
     }
 
     @Override
@@ -99,29 +95,33 @@ public class CWindow extends FrameLayout implements IWindow {
     }
 
     @Override
-    public void onMove(int x, int y) {
+    public void onMoveStart() {
+        // nop
+    }
 
+    @Override
+    public void onMoving() {
+        // nop
+    }
+
+    @Override
+    public void onMoveEnd() {
+        // nop
     }
 
     @Override
     public void onMinimizeStart() {
-        setWindowLayoutParams(getWindowLayoutParams()
-                .X(mLastX).Y(mLastY)
-                .Width(mLastWidth).Height(mLastHeight));
+        // nop
     }
 
     @Override
     public void onMinimizeEnd() {
-        mMovable = true;
+        // nop
     }
 
     @Override
     public void onMaximizeStart() {
-        mLastX = getWindowLayoutParams().x;
-        mLastY = getWindowLayoutParams().y;
-        mLastWidth = getWindowLayoutParams().width;
-        mLastHeight = getWindowLayoutParams().height;
-        mMovable = false;
+       // nop
     }
 
     @Override
@@ -130,8 +130,18 @@ public class CWindow extends FrameLayout implements IWindow {
     }
 
     @Override
-    public void onTransform(int x, int y, int width, int height) {
+    public void onScaleStart() {
+        // nop
+    }
 
+    @Override
+    public void onScaling() {
+        // nop
+    }
+
+    @Override
+    public void onScaleEnd() {
+        // nop
     }
 
     @Override
@@ -211,17 +221,11 @@ public class CWindow extends FrameLayout implements IWindow {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mMovable) {
-            mMovableDelegate.handleEvent(event);
-        }
+        mResizeDelegate.move(event);
         return true;
     }
 
     //////////////////
 
     private IWindowManager mWindowManager;
-    private IWindow.LayoutParams mLayoutParams;
-
-
-
 }

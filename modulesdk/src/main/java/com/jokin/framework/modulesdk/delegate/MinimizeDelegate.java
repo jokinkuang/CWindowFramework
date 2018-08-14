@@ -1,6 +1,7 @@
 package com.jokin.framework.modulesdk.delegate;
 
 import com.jokin.framework.modulesdk.IWindow;
+import com.jokin.framework.modulesdk.iwindow.IBaseWindow;
 
 import java.security.InvalidParameterException;
 
@@ -9,12 +10,12 @@ import java.security.InvalidParameterException;
  */
 
 public class MinimizeDelegate {
-    private static final String TAG = "MinimizeDelegate";
+    private static final String TAG = MinimizeDelegate.class.getSimpleName();
 
-    private IWindow mWindow;
+    private IBaseWindow mWindow;
     private IWindow.LayoutParams mParams;
 
-    public MinimizeDelegate(IWindow target) {
+    public MinimizeDelegate(IBaseWindow target) {
         if (target == null) {
             throw new InvalidParameterException("target cannot be null");
         }
@@ -26,4 +27,5 @@ public class MinimizeDelegate {
         // nop
         mWindow.onMinimizeEnd();
     }
+
 }

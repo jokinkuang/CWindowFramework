@@ -5,5 +5,7 @@ package com.jokin.framework.modulesdk.iwindow;
  */
 
 public interface IMovable {
-    void onMove(int x, int y);
+    void onMoveStart();
+    void onMoving();
+    void onMoveEnd();
 }

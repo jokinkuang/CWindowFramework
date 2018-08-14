@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -18,24 +17,17 @@ import android.widget.TextView;
 import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.IWindowManager;
 import com.jokin.framework.modulesdk.R;
-import com.jokin.framework.modulesdk.delegate.MaximizeDelegate;
-import com.jokin.framework.modulesdk.delegate.MinimizeDelegate;
-import com.jokin.framework.modulesdk.delegate.MoveDelegate;
-import com.jokin.framework.modulesdk.delegate.ScaleDelegate;
+import com.jokin.framework.modulesdk.delegate.ResizeDelegate;
 
 /**
  * Created by jokin on 2018/7/16 10:51.
  */
 
 public class CViewWindow extends FrameLayout implements IWindow, View.OnClickListener {
-    private static final String TAG = "CWindow";
-    protected IWindow.LayoutParams mWindowLayoutParams;
-    protected WindowManager.LayoutParams mLastLayoutParams;
+    private static final String TAG = CViewWindow.class.getSimpleName();
 
-    ScaleDelegate mScaleDelegate;
-    MinimizeDelegate mMinimizeDelegate;
-    MaximizeDelegate mMaximizeDelegate;
-    private MoveDelegate mMovableDelegate;
+    protected IWindow.LayoutParams mWindowLayoutParams;
+    protected ResizeDelegate mResizeDelegate;
 
     public CViewWindow(@NonNull Context context) {
         super(context);
@@ -64,28 +56,14 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
     }
 
     private void init() {
-        /** init()时，children列表是空的！ */
+        /**
+         * init()时，children列表是空的！放到onAttachedToWindow访问children
+         **/
         mWindowLayoutParams = new IWindow.LayoutParams.Builder().build();
-
-        mScaleDelegate = new ScaleDelegate(this);
-        mMinimizeDelegate = new MinimizeDelegate(this);
-        mMaximizeDelegate = new MaximizeDelegate(this);
-        mMovableDelegate = new MoveDelegate(this);
-
-        mLastX = mWindowLayoutParams.x;
-        mLastY = mWindowLayoutParams.y;
-        mLastWidth = mWindowLayoutParams.width;
-        mLastHeight = mWindowLayoutParams.height;
+        mResizeDelegate = new ResizeDelegate(this);
     }
 
     private void initEvents() {
-        Log.e(TAG, "child size:" + getChildCount());
-        printChild(this);
-        Log.e(TAG, "close id:"+R.id.btn_close);
-        Log.e(TAG, "min id:"+R.id.btn_min);
-        Log.e(TAG, "max id:"+R.id.btn_max);
-        Log.e(TAG, "scale id:"+R.id.btn_scale);
-
         findViewById(R.id.btn_close).setOnClickListener(this);
         findViewById(R.id.btn_min).setOnClickListener(this);
         findViewById(R.id.btn_max).setOnClickListener(this);
@@ -97,7 +75,7 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
             public boolean onTouch(View v, MotionEvent event) {
                 Log.d(TAG, "onTouch() called with: v = [" + v + "], event = [" + event + "]");
                 if (v.getId() == R.id.btn_scale) {
-                    mScaleDelegate.handleEvent(event);
+                    mResizeDelegate.scale(event);
                     return true;
                 }
                 return false;
@@ -108,14 +86,17 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
         textView.setText(textView.getText()+" Process:"+ Process.myPid());
     }
 
-    private void printChild(ViewGroup parent) {
-        Log.e(TAG, "printChild count:" + parent.getChildCount());
+    private String space = "-";
+    private String SEPARATOR = "--";
+    private void printTree(ViewGroup parent) {
+        Log.e(TAG, space+"child count:" + parent.getChildCount());
         for (int i = 0; i < parent.getChildCount(); ++i) {
-            View child = getChildAt(i);
+            View child = parent.getChildAt(i);
+            Log.e(TAG, space+String.format("child(%d): %s", i, child.toString()));
             if (child instanceof ViewGroup) {
-                // printChild((ViewGroup) child);
-            } else {
-                Log.e(TAG, "child id:" + String.valueOf(child.getId()) + "with tag:" + child.getTag());
+                space += SEPARATOR;
+                printTree((ViewGroup) child);
+                space = space.substring(SEPARATOR.length());
             }
         }
     }
@@ -159,36 +140,35 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
         setVisibility(INVISIBLE);
     }
 
+
     @Override
-    public void onMove(int x, int y) {
+    public void onMoveStart() {
 
     }
 
-    private int mLastX;
-    private int mLastY;
-    private int mLastWidth;
-    private int mLastHeight;
-    private boolean mMovable = true;
+    @Override
+    public void onMoving() {
+
+    }
+
+    @Override
+    public void onMoveEnd() {
+        // nop
+    }
 
     @Override
     public void onMinimizeStart() {
-        setWindowLayoutParams(getWindowLayoutParams()
-                .X(mLastX).Y(mLastY)
-                .Width(mLastWidth).Height(mLastHeight));
+        // nop
     }
 
     @Override
     public void onMinimizeEnd() {
-        mMovable = true;
+        // nop
     }
 
     @Override
     public void onMaximizeStart() {
-        mLastX = getWindowLayoutParams().x;
-        mLastY = getWindowLayoutParams().y;
-        mLastWidth = getWindowLayoutParams().width;
-        mLastHeight = getWindowLayoutParams().height;
-        mMovable = false;
+        // nop
     }
 
     @Override
@@ -197,8 +177,18 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
     }
 
     @Override
-    public void onTransform(int x, int y, int width, int height) {
+    public void onScaleStart() {
+        // nop
+    }
 
+    @Override
+    public void onScaling() {
+        // nop
+    }
+
+    @Override
+    public void onScaleEnd() {
+        // nop
     }
 
     @Override
@@ -254,6 +244,7 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
     @Override
     public void notifyActivated() {
         // TODO notify server
+        Log.e(TAG, "notifyActivated!");
     }
 
     @Override
@@ -267,9 +258,7 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mMovable) {
-            mMovableDelegate.handleEvent(event);
-        }
+        mResizeDelegate.move(event);
         return true;
     }
 
@@ -313,11 +302,11 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
     }
 
     private void onClickBtnMin() {
-        mMinimizeDelegate.minimize();
+        mResizeDelegate.minimize();
     }
 
     private void onClickBtnMax() {
-        mMaximizeDelegate.maximize();
+        mResizeDelegate.maximize();
     }
 
     private void onClickBtnDrag() {
