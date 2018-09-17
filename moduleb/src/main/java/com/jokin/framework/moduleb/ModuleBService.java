@@ -20,14 +20,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jokin.framework.modulesdk.IWindow;
-import com.jokin.framework.modulesdk.delegate.MaximizeDelegate;
-import com.jokin.framework.modulesdk.delegate.MinimizeDelegate;
-import com.jokin.framework.modulesdk.delegate.ScaleDelegate;
 import com.jokin.framework.modulesdk.impl.CModule;
 import com.jokin.framework.modulesdk.impl.CWindow;
 import com.jokin.framework.modulesdk.view.CRemoteView;
 import com.jokin.framework.modulesdk.view.IRemoteViewManager;
-import com.jokin.framework.modulesdk.view.RemoteWindowManager;
 import com.jokin.framework.modulesdk.wrap.LifecycleAdapter;
 
 public class ModuleBService extends Service implements View.OnClickListener {
@@ -36,9 +32,6 @@ public class ModuleBService extends Service implements View.OnClickListener {
 
     CModule mModule;
     CWindow mWindow;
-    ScaleDelegate mScaleDelegate;
-    MinimizeDelegate mMinimizeDelegate;
-    MaximizeDelegate mMaximizeDelegate;
 
     IRemoteViewManager mRemoteViewManager;
     CRemoteView mCRemoteView;
@@ -70,11 +63,6 @@ public class ModuleBService extends Service implements View.OnClickListener {
         mWindow.findViewById(R.id.btn_crash).setOnClickListener(this);
         mWindow.findViewById(R.id.edit_text).setOnClickListener(this);
 
-        mScaleDelegate = new ScaleDelegate(mWindow);
-        mMinimizeDelegate = new MinimizeDelegate(mWindow);
-        mMaximizeDelegate = new MaximizeDelegate(mWindow);
-
-
         mWindow.findViewById(R.id.btn_scale).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -97,10 +85,12 @@ public class ModuleBService extends Service implements View.OnClickListener {
         // }
 
         //// Remote view
-        mRemoteViewManager = new RemoteWindowManager(this);
+        // mRemoteViewManager = new RemoteWindowManager(this);
+        // mRemoteViewManager = mModule.getWindowManagerService();
+        mRemoteViewManager = mModule.getRemoteViewManagerService();
         mCRemoteView = new CRemoteView(this.getPackageName(), R.layout.layout_view_window);
         mRemoteViewManager.addView(mCRemoteView);
-        // startTimer();
+        Log.e(TAG, "## finish create!");
     }
 
     @Override
@@ -117,9 +107,9 @@ public class ModuleBService extends Service implements View.OnClickListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand() called with: intent = [" + intent + "], flags = [" + flags + "], startId = [" + startId + "]");
+        Log.e(TAG, "onStartCommand() called with: intent = [" + intent + "], flags = [" + flags + "], startId = [" + startId + "]");
         mModule.getWindowManagerService().addWindow(mWindow);
-        Log.d(TAG, "onStartCommand: window layoutparams" + mWindow.getLayoutParams());
+        Log.e(TAG, "onStartCommand: window layoutparams" + mWindow.getLayoutParams());
         Log.d(TAG, "onStartCommand: window layoutparams" + mWindow.getWindowLayoutParams());
         return Service.START_STICKY;
     }

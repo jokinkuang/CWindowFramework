@@ -8,6 +8,8 @@ import com.jokin.framework.modulesdk.IClientModule;
 import com.jokin.framework.modulesdk.IWindowManager;
 import com.jokin.framework.modulesdk.constant.Constants;
 import com.jokin.framework.modulesdk.iwindow.ILifecycable;
+import com.jokin.framework.modulesdk.view.IRemoteViewManager;
+import com.jokin.framework.modulesdk.view.RemoteWindowManager;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,15 +26,16 @@ public class CModule implements IClientModule {
     private ConcurrentHashMap<ILifecycable, ILifecycable> mLifecycables = new ConcurrentHashMap<>(10);
     private Context mContext;
     private IWindowManager mWindowManager;
+    private IRemoteViewManager mRemoteViewManager;
 
     private static volatile CModuleManager sModuleManager;
 
     public CModule(Context context) {
-        mContext = context;
+        mContext = context.getApplicationContext();
         mKey = mContext.getPackageName()+ Constants.KEY_SEPARATOR+this.hashCode();
 
         if (sModuleManager == null) {
-            sModuleManager = new CModuleManager(context);
+            sModuleManager = new CModuleManager(mContext);
         }
         sModuleManager.registerModule(this);
         sModuleManager.registerModule(this);
@@ -40,6 +43,7 @@ public class CModule implements IClientModule {
         sModuleManager.registerModule(this);
 
         mWindowManager = new CWindowManager(this);
+        mRemoteViewManager = new RemoteWindowManager(this, sModuleManager);
     }
 
     @Override
@@ -133,5 +137,10 @@ public class CModule implements IClientModule {
     @Override
     public IWindowManager getWindowManagerService() {
         return mWindowManager;
+    }
+
+    @Override
+    public IRemoteViewManager getRemoteViewManagerService() {
+        return mRemoteViewManager;
     }
 }

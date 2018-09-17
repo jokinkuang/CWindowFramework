@@ -7,5 +7,4 @@ package com.jokin.framework.modulesdk.constant;
 public class Constants {
     public static final String KEY_SEPARATOR = ":";
     public static final String BINDER_LOCAL = "BINDER_LOCAL";
-
 }

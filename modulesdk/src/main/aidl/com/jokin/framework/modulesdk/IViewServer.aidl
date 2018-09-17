@@ -5,7 +5,7 @@ import com.jokin.framework.modulesdk.view.CRemoteView;
 
 // Declare any non-default types here with import statements
 
-interface IRemoteView {
+interface IViewServer {
 
     void add(in CRemoteView view);
 

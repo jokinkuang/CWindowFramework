@@ -11,4 +11,7 @@ interface IModuleServer {
     void registerModule(IModuleClient client);
 
     void unregisterModule(IModuleClient client);
+
+    /** Nullable */
+    IBinder getService(String service);
 }

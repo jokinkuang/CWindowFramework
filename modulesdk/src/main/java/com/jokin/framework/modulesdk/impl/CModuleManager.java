@@ -14,6 +14,7 @@ import com.jokin.framework.modulesdk.IModuleServer;
 import com.jokin.framework.modulesdk.intent.ServerIntent;
 import com.jokin.framework.modulesdk.wrap.RemoteModuleBridge;
 
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 
 /**
@@ -28,6 +29,7 @@ public final class CModuleManager implements IModuleManager {
     private Context mContext;
     private IModuleServer mModuleServer;
     private HashMap<Integer, IClientModule> mClientModules = new HashMap(5);
+    private HashMap<ConnectionListener, ConnectionListener> mListeners = new HashMap<>(5);
 
     public CModuleManager(Context context) {
         mContext = context;
@@ -45,20 +47,37 @@ public final class CModuleManager implements IModuleManager {
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "onServiceConnected() called with: name = [" + name + "], service = [" + service + "]");
             Log.i(TAG, "## ServiceConnected");
+
             mModuleServer = IModuleServer.Stub.asInterface(service);
+            notifyConnected();
+
+            try {
+                mModuleServer.asBinder().linkToDeath(new IBinder.DeathRecipient() {
+                    @Override
+                    public void binderDied() {
+                        Log.e(TAG, "dead!!!");
+                    }
+                }, 0);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
 
             for (IClientModule module : mClientModules.values()) {
                 try {
                     Log.d(TAG, "onServiceConnected: "+ module);
                     RemoteModuleBridge bridge = new RemoteModuleBridge(module);
                     mModuleServer.registerModule(bridge);
+                     bridge = new RemoteModuleBridge(module);
                     mModuleServer.registerModule(bridge);
+                     bridge = new RemoteModuleBridge(module);
                     mModuleServer.registerModule(bridge);
+                     bridge = new RemoteModuleBridge(module);
                     mModuleServer.registerModule(bridge);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
             }
+
         }
 
         @Override
@@ -72,6 +91,7 @@ public final class CModuleManager implements IModuleManager {
             mContext.unbindService(mServiceConnection);
             mModuleServer = null;
             // 2. notify upwards
+            notifyDisconnected();
             IClientModule[] modules = mClientModules.values().toArray(new IClientModule[mClientModules.size()]);
             for (IClientModule module : modules) {
                 module.onDestroy();
@@ -117,6 +137,28 @@ public final class CModuleManager implements IModuleManager {
     }
 
     @Override
+    public void addConnectionListener(ConnectionListener listener) {
+        mListeners.put(listener, listener);
+    }
+
+    @Override
+    public void removeConnectionListener(ConnectionListener listener) {
+        mListeners.remove(listener);
+    }
+
+    private void notifyConnected() {
+        for (ConnectionListener listener : mListeners.values()) {
+            listener.onConnected();
+        }
+    }
+
+    private void notifyDisconnected() {
+        for (ConnectionListener listener : mListeners.values()) {
+            listener.onDisconnected();
+        }
+    }
+
+    @Override
     public void registerModule(IClientModule module) {
         if (module == null) {
             throw new NullPointerException("module cannot be null");
@@ -150,5 +192,25 @@ public final class CModuleManager implements IModuleManager {
             }
         }
         mClientModules.remove(module.hashCode());
+    }
+
+    /**
+     * @param service
+     * @return return null if not found
+     */
+    @Override
+    public IBinder getService(String service) {
+        if (service == null) {
+            throw new InvalidParameterException("service cannot be null");
+        }
+        if (mModuleServer != null) {
+            try {
+                Log.i(TAG, "## GetService:"+service);
+                return mModuleServer.getService(service);
+            } catch (RemoteException e) {
+                Log.e(TAG, "", e);
+            }
+        }
+        return null;
     }
 }

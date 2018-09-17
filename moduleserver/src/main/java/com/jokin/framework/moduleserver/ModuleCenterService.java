@@ -10,7 +10,9 @@ import android.util.Log;
 
 import com.jokin.framework.modulesdk.IModuleClient;
 import com.jokin.framework.modulesdk.IModuleServer;
+import com.jokin.framework.modulesdk.IViewServer;
 import com.jokin.framework.modulesdk.constant.Constants;
+import com.jokin.framework.modulesdk.constant.Server;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -149,10 +151,15 @@ public class ModuleCenterService extends Service {
 
     ///////////////////
 
+    private final IViewServer.Stub mViewServer = new ViewCenterService();
+
     private final IModuleServer.Stub mModuleServer = new IModuleServer.Stub() {
         @Override
         public void registerModule(IModuleClient client) throws RemoteException {
-            Log.d(TAG, "registerModule() called with: client = [" + client.key() + "]");
+            Log.d(TAG, "## registerModule client = [" + client.key() + "]");
+            if (mClientModules.contains(client.key())) {
+                Log.w(TAG, "## registerModule client already exist update it:"+client.key());
+            }
             mClientModules.put(client.key(), client);
         }
 
@@ -161,11 +168,29 @@ public class ModuleCenterService extends Service {
             Log.d(TAG, "unregisterModule() called with: client = [" + client.key() + "]");
             mClientModules.remove(client.key());
         }
+
+        @Override
+        public IBinder getService(String service) throws RemoteException {
+            return getServiceInner(service);
+        }
     };
 
     public class LocalBinder extends Binder {
         public ModuleCenterService getServiceInstance() {
             return ModuleCenterService.this;
         }
+        public IBinder getService(String service) {
+            return getServiceInner(service);
+        }
     };
+
+    private IBinder getServiceInner(String service) {
+        Log.i(TAG, "## getServiceInner: "+service);
+        if (Server.VIEW_SERVICE.equalsIgnoreCase(service)) {
+            return mViewServer;
+        } else if (Server.WINDOW_SERVICE.equalsIgnoreCase(service)) {
+            // TODO
+        }
+        return null;
+    }
 }

@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.jokin.framework.modulesdk.constant.Constants;
+import com.jokin.framework.modulesdk.constant.Server;
 import com.jokin.framework.modulesdk.iwindow.ILifecycable;
 
 import java.util.HashMap;
@@ -28,7 +29,6 @@ public class ModuleCenter implements ILifecycable {
     public ModuleCenter(Context context) {
         mContext = context;
         initModuleCenter();
-        initViewCenter();
     }
 
     private void initModuleCenter() {
@@ -37,31 +37,18 @@ public class ModuleCenter implements ILifecycable {
         mContext.bindService(intent, mModuleCenterServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    private void initViewCenter() {
-        Intent intent = new Intent(mContext, ViewCenterService.class);
-        intent.setAction(Constants.BINDER_LOCAL);
-        mContext.bindService(intent, mViewServerServiceConnection, Context.BIND_AUTO_CREATE);
-    }
-
     private ServiceConnection mModuleCenterServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "onServiceConnected() called with: name = [" + name + "], service = [" + service + "]");
+            ModuleCenterService.LocalBinder localBinder = (ModuleCenterService.LocalBinder)service;
+            if (localBinder == null) {
+                throw new NullPointerException("Fatal error!");
+            }
             mModuleCenterService = ((ModuleCenterService.LocalBinder)service).getServiceInstance();
-        }
 
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG, "onServiceDisconnected() called with: name = [" + name + "]");
-            mModuleCenterService = null;
-        }
-    };
-
-    private ServiceConnection mViewServerServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d(TAG, "onServiceConnected() called with: name = [" + name + "], service = [" + service + "]");
-            mViewCenterService = ((ViewCenterService.LocalBinder)service).getServiceInstance();
+            // init view server
+            mViewCenterService = (ViewCenterService) localBinder.getService(Server.VIEW_SERVICE);
             if (mRemoteViewListeners.size() > 0) {
                 Log.d(TAG, "onServiceConnected: mRemoteViewListeners.size="+mRemoteViewListeners.size());
                 for (IRemoteViewListener listener : mRemoteViewListeners.values()) {
@@ -74,6 +61,7 @@ public class ModuleCenter implements ILifecycable {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "onServiceDisconnected() called with: name = [" + name + "]");
+            mModuleCenterService = null;
             mViewCenterService = null;
         }
     };
@@ -97,6 +85,8 @@ public class ModuleCenter implements ILifecycable {
             mRemoteViewListeners.remove(listener);
         }
     }
+
+    //////////// Lifecycle /////////////
 
     @Override
     public void onCreate(Bundle bundle) {

@@ -1,12 +1,17 @@
 package com.jokin.framework.cwindowframework;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.Process;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -16,11 +21,14 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.jokin.framework.modulesdk.view.CRemoteView;
-import com.jokin.framework.modulesdk.view.CViewWindow;
 import com.jokin.framework.moduleserver.IRemoteViewListener;
 import com.jokin.framework.moduleserver.ModuleCenter;
 import com.jokin.framework.moduleserver.RemoteLayoutInflater;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 public class FullscreenActivity extends AppCompatActivity {
@@ -34,6 +42,7 @@ public class FullscreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        verifyStoragePermissions(this);
         mContext = this;
         Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
         //去除标题栏
@@ -81,9 +90,16 @@ public class FullscreenActivity extends AppCompatActivity {
                     Log.w(TAG, "## Add: already add view " + view);
                     return;
                 }
-                CViewWindow realView = (CViewWindow) RemoteLayoutInflater.from(mContext, view.getPackage()).inflate(view.getLayoutId(), mRootView, false);
+                View realView = RemoteLayoutInflater.from(mContext, view.getPackage()).inflate(view.getLayoutId(), mRootView, false);
+                // View realView = view.apply(mContext, mRootView);
                 Log.d(TAG, "onAdd: realView" + realView);
-                realView.notifyActivated();
+                try {
+                    Method method = realView.getClass().getMethod("notifyActivated", new Class[0]);
+                    method.invoke(realView);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 mRootView.addView(realView);
                 realView.setTag(view.key());
                 mRemoteViews.put(view.key(), realView);
@@ -130,12 +146,62 @@ public class FullscreenActivity extends AppCompatActivity {
         });
     }
 
+    public static FullscreenActivity INSTANCE;
 
+    private boolean blSandBox;
     @Override
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "onStart() called");
+
+        Log.e(TAG, "start:"+System.currentTimeMillis());
+        Bitmap bitmap = Bitmap.createBitmap(5000, 5000, Bitmap.Config.ARGB_8888);
+        try {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File("/sdcard/abc.png")));
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "", e);
+        }
+        Log.e(TAG, "end:"+System.currentTimeMillis());
+
         mModuleCenter.onStart();
+        INSTANCE = this;
+        new AnrWatchDog();
+        mRootView.post(new Runnable() {
+            @Override
+            public void run() {
+                if (! blSandBox) {
+                    try {
+                        blSandBox = true;
+                        Log.e(TAG, "Looping !!!");
+                        Looper.loop();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Plugin Dead!", e);
+                    }
+                }
+            }
+        });
+        Log.e(TAG, "on start");
+    }
+
+
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE" };
+
+
+    public static void verifyStoragePermissions(Activity activity) {
+        try {
+            //检测是否有写的权限
+            int permission = ActivityCompat.checkSelfPermission(activity,
+                    "android.permission.WRITE_EXTERNAL_STORAGE");
+            if (permission != PackageManager.PERMISSION_GRANTED) {
+                // 没有写的权限，去申请写的权限，会弹出对话框
+                ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

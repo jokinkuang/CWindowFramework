@@ -1,9 +1,13 @@
 package com.jokin.framework.moduleserver;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
+import android.os.Process;
+import android.os.UserHandle;
 import android.util.Log;
 import android.view.LayoutInflater;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 import static android.content.ContentValues.TAG;
 
@@ -13,7 +17,7 @@ import static android.content.ContentValues.TAG;
 
 public class RemoteLayoutInflater {
 
-    private static Context s_c;
+    private static Context s_c = null;
     public static LayoutInflater from(Context localContext, String remotePackageName) {
         Context c = prepareContext(localContext, remotePackageName);
         LayoutInflater inflater = (LayoutInflater)c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -24,14 +28,18 @@ public class RemoteLayoutInflater {
         if (s_c != null) {
             return s_c;
         }
-        Context c;
+        Context c = null;
         String packageName = pkgName;
         if (packageName != null) {
             try {
-                c = context.createPackageContext(packageName, Context.CONTEXT_INCLUDE_CODE|Context.CONTEXT_IGNORE_SECURITY);
+                // c = context.createPackageContext(packageName, Context.CONTEXT_INCLUDE_CODE|Context.CONTEXT_IGNORE_SECURITY);
                 // c = context.createPackageContextAsUser(
                 //         packageName, Context.CONTEXT_RESTRICTED, mUser);
-            } catch (PackageManager.NameNotFoundException e) {
+                Method method = context.getClass().getMethod("createPackageContextAsUser", String.class, int.class, UserHandle.class);
+                Constructor consturctMethod = UserHandle.class.getConstructor(int.class);
+                UserHandle userHandle = (UserHandle) consturctMethod.newInstance(Process.myUid());
+                method.invoke(context, packageName, Context.CONTEXT_INCLUDE_CODE|Context.CONTEXT_IGNORE_SECURITY, userHandle);
+            } catch (Exception e) {
                 Log.e(TAG, "Package name " + packageName + " not found");
                 c = context;
             }

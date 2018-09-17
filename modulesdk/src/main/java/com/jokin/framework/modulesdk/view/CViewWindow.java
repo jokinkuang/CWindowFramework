@@ -1,10 +1,15 @@
 package com.jokin.framework.modulesdk.view;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Process;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -18,6 +23,10 @@ import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.IWindowManager;
 import com.jokin.framework.modulesdk.R;
 import com.jokin.framework.modulesdk.delegate.ResizeDelegate;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.lang.reflect.Method;
 
 /**
  * Created by jokin on 2018/7/16 10:51.
@@ -267,6 +276,26 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
     private IWindowManager mWindowManager;
     private IWindow.LayoutParams mLayoutParams;
 
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE" };
+
+    public static void verifyStoragePermissions(Activity activity) {
+        try {
+            //检测是否有写的权限
+            int permission = ActivityCompat.checkSelfPermission(activity,
+                    "android.permission.WRITE_EXTERNAL_STORAGE");
+            if (permission != PackageManager.PERMISSION_GRANTED) {
+                // 没有写的权限，去申请写的权限，会弹出对话框
+                ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     @Override
     public void onClick(View v) {
         int i = v.getId();
@@ -280,9 +309,56 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
             onClickBtnMax();
 
         } else if (i == R.id.btn_crash) {
-            View view = null;
-            view.getTag();
+            // View view = null;
+            // view.getTag();
+            // try {
+            //     Thread.sleep(10*1000);
+            // } catch (InterruptedException e) {
+            //     Log.e(TAG, "", e);
+            // }
 
+            // Intent intent = getContext().getPackageManager().buildRequestPermissionsIntent(permissions);
+            PackageManager packageManager = getContext().getPackageManager();
+            try {
+                Log.e(TAG, "onClick: " + packageManager);
+                // Intent intent = new Intent("android.content.pm.action.REQUEST_PERMISSIONS");
+                // intent.putExtra("android.content.pm.extra.REQUEST_PERMISSIONS_NAMES", PERMISSIONS_STORAGE);
+                // intent.setPackage(getContext().getPackageManager().getPermissionControllerPackageName());
+
+                // Method method = packageManager.getClass().getMethod("getPermissionControllerPackageName");
+                // String pkg = (String) method.invoke(packageManager);
+                // Log.e(TAG, "pkg:"+pkg);
+                // intent.setPackage(pkg);
+
+                int result = getContext().checkPermission("android.permission.WRITE_EXTERNAL_STORAGE", android.os.Process.myPid(), Process.myUid());
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    Log.e(TAG, "Not granted permission!");
+                } else {
+                    Log.e(TAG, "Granted permission!");
+                }
+
+                Method method = packageManager.getClass().getMethod("buildRequestPermissionsIntent", new Class<?>[]{String[].class});
+                Log.e(TAG, "onClick: "+method);
+                Intent intent = (Intent) method.invoke(packageManager, new Object[]{PERMISSIONS_STORAGE});
+                Log.e(TAG, "onClick: "+intent);
+                getContext().startActivity(intent);
+            } catch (Exception e) {
+                Log.e(TAG, "", e);
+            }
+
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e(TAG, "start:"+System.currentTimeMillis());
+                    Bitmap bitmap = Bitmap.createBitmap(5000, 5000, Bitmap.Config.ARGB_8888);
+                    try {
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(getContext().getCacheDir().getAbsolutePath()+"/a"));
+                    } catch (FileNotFoundException e) {
+                        Log.e(TAG, "", e);
+                    }
+                    Log.e(TAG, "end:"+System.currentTimeMillis());
+                }
+            });
         } else if (i == R.id.btn_scale) {
             onClickBtnDrag();
 
