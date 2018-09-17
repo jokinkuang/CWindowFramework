@@ -350,11 +350,11 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
                 @Override
                 public void run() {
                     Logger.e(TAG, "start:"+System.currentTimeMillis());
-                    Bitmap bitmap = Bitmap.createBitmap(5000, 5000, Bitmap.Config.ARGB_8888);
+                    Bitmap bitmap = Bitmap.createBitmap(500000, 500000, Bitmap.Config.ARGB_8888);
                     try {
                         bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(getContext().getCacheDir().getAbsolutePath()+"/a"));
                     } catch (FileNotFoundException e) {
-                        Logger.e(TAG, "", e);
+                        e.printStackTrace();
                     }
                     Logger.e(TAG, "end:"+System.currentTimeMillis());
                 }

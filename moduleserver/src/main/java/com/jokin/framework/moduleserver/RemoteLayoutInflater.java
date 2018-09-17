@@ -1,14 +1,9 @@
 package com.jokin.framework.moduleserver;
 
 import android.content.Context;
-import android.os.Process;
-import android.os.UserHandle;
 import android.view.LayoutInflater;
 
 import com.jokin.framework.modulesdk.log.Logger;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 
 import static android.content.ContentValues.TAG;
 
@@ -33,13 +28,14 @@ public class RemoteLayoutInflater {
         String packageName = pkgName;
         if (packageName != null) {
             try {
-                // c = context.createPackageContext(packageName, Context.CONTEXT_INCLUDE_CODE|Context.CONTEXT_IGNORE_SECURITY);
+                c = context.createPackageContext(packageName, Context.CONTEXT_INCLUDE_CODE|Context.CONTEXT_IGNORE_SECURITY);
+                // 下面是另外一个尝试，暂时未成功。
                 // c = context.createPackageContextAsUser(
                 //         packageName, Context.CONTEXT_RESTRICTED, mUser);
-                Method method = context.getClass().getMethod("createPackageContextAsUser", String.class, int.class, UserHandle.class);
-                Constructor consturctMethod = UserHandle.class.getConstructor(int.class);
-                UserHandle userHandle = (UserHandle) consturctMethod.newInstance(Process.myUid());
-                method.invoke(context, packageName, Context.CONTEXT_INCLUDE_CODE|Context.CONTEXT_IGNORE_SECURITY, userHandle);
+                // Method method = context.getClass().getMethod("createPackageContextAsUser", String.class, int.class, UserHandle.class);
+                // Constructor consturctMethod = UserHandle.class.getConstructor(int.class);
+                // UserHandle userHandle = (UserHandle) consturctMethod.newInstance(Process.myUid());
+                // method.invoke(context, packageName, Context.CONTEXT_INCLUDE_CODE|Context.CONTEXT_IGNORE_SECURITY, userHandle);
             } catch (Exception e) {
                 Logger.e(TAG, "Package name " + packageName + " not found");
                 c = context;

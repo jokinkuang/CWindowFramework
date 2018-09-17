@@ -5,7 +5,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
@@ -25,9 +24,6 @@ import com.jokin.framework.moduleserver.IRemoteViewListener;
 import com.jokin.framework.moduleserver.ModuleCenter;
 import com.jokin.framework.moduleserver.RemoteLayoutInflater;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
@@ -36,17 +32,23 @@ public class FullscreenActivity extends AppCompatActivity {
 
     private Context mContext;
     private ModuleCenter mModuleCenter;
+    private AnrWatchDog mAnrWatchDog;
     private ViewGroup mRootView;
     private HashMap<String, View> mRemoteViews = new HashMap<>(10);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        verifyStoragePermissions(this);
         mContext = this;
-        Logger.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
+        INSTANCE = this;
+        mAnrWatchDog = new AnrWatchDog();
+
         //去除标题栏
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        verifyStoragePermissions(this);
+
+        Logger.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
 
         //去除状态栏
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -153,29 +155,31 @@ public class FullscreenActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Logger.d(TAG, "onStart() called");
-
-        Logger.e(TAG, "start:"+System.currentTimeMillis());
-        Bitmap bitmap = Bitmap.createBitmap(5000, 5000, Bitmap.Config.ARGB_8888);
-        try {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File("/sdcard/abc.png")));
-        } catch (FileNotFoundException e) {
-            Logger.e(TAG, "", e);
-        }
-        Logger.e(TAG, "end:"+System.currentTimeMillis());
-
         mModuleCenter.onStart();
-        INSTANCE = this;
-        new AnrWatchDog();
         mRootView.post(new Runnable() {
             @Override
             public void run() {
-                if (! blSandBox) {
-                    try {
-                        blSandBox = true;
-                        Logger.e(TAG, "Looping !!!");
-                        Looper.loop();
-                    } catch (Exception e) {
-                        Logger.e(TAG, "Plugin Dead!", e);
+                while (true) {
+                    if (!blSandBox) {
+                        try {
+                            blSandBox = true;
+                            Logger.e(TAG, "Looping !!!");
+                            Looper.loop();
+                        } catch (Exception e) {
+                            Logger.e(TAG, "Plugin Dead!", e);
+                        } catch (Error e) {
+                            Logger.e("UncaughtException", "Got an uncaught exception: "+e.toString());
+                            if(e.getClass().equals(OutOfMemoryError.class)) {
+                                Logger.e(TAG, "######## OOM ######");
+                                // Dump or not
+                                // try {
+                                //     android.os.Debug.dumpHprofData("/sdcard/dump.hprof");
+                                // } catch (IOException ex) {
+                                //     e.printStackTrace();
+                                // }
+                            }
+                            Logger.e(TAG, "Error:", e);
+                        }
                     }
                 }
             }
