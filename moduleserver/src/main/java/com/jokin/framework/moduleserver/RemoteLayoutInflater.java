@@ -3,8 +3,9 @@ package com.jokin.framework.moduleserver;
 import android.content.Context;
 import android.os.Process;
 import android.os.UserHandle;
-import android.util.Log;
 import android.view.LayoutInflater;
+
+import com.jokin.framework.modulesdk.log.Logger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -40,7 +41,7 @@ public class RemoteLayoutInflater {
                 UserHandle userHandle = (UserHandle) consturctMethod.newInstance(Process.myUid());
                 method.invoke(context, packageName, Context.CONTEXT_INCLUDE_CODE|Context.CONTEXT_IGNORE_SECURITY, userHandle);
             } catch (Exception e) {
-                Log.e(TAG, "Package name " + packageName + " not found");
+                Logger.e(TAG, "Package name " + packageName + " not found");
                 c = context;
             }
         } else {

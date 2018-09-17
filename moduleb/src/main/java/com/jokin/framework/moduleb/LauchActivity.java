@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 
 import com.jokin.framework.modulesdk.intent.ServerIntent;
+import com.jokin.framework.modulesdk.log.Logger;
 
 
 public class LauchActivity extends Activity {
@@ -21,9 +21,9 @@ public class LauchActivity extends Activity {
         setContentView(R.layout.activity_lauch);
         verifyStoragePermissions(this);
 
-        // Looper.myLooper().setMessageLogging(new LogPrinter(Log.VERBOSE, TAG));
+        // Looper.myLooper().setMessageLoggerging(new LoggerPrinter(Logger.VERBOSE, TAG));
 
-        Log.d(TAG, "onCreate() called");
+        Logger.d(TAG, "onCreate() called");
         // startActivity(ServerIntent.getServerMainActivityIntent(this));
 
         // startService(new Intent(this, ModuleBService.class));
@@ -56,7 +56,7 @@ public class LauchActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d(TAG, "onStop() called");
+        Logger.d(TAG, "onStop() called");
         startService(new Intent(this, ModuleBService.class));
         finish();
     }

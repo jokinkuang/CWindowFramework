@@ -2,12 +2,12 @@ package com.jokin.framework.modulesdk.impl;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.jokin.framework.modulesdk.IClientModule;
 import com.jokin.framework.modulesdk.IWindowManager;
 import com.jokin.framework.modulesdk.constant.Constants;
 import com.jokin.framework.modulesdk.iwindow.ILifecycable;
+import com.jokin.framework.modulesdk.log.Logger;
 import com.jokin.framework.modulesdk.view.IRemoteViewManager;
 import com.jokin.framework.modulesdk.view.RemoteWindowManager;
 
@@ -91,7 +91,7 @@ public class CModule implements IClientModule {
     @Override
     public void onDestroy() {
         // Passive destroy(被动）
-        Log.i(TAG, "## Passive onDestroy()");
+        Logger.i(TAG, "## Passive onDestroy()");
         destroy();
     }
 
@@ -108,7 +108,7 @@ public class CModule implements IClientModule {
     // Active destroy(主动)
     @Override
     public void destroy() {
-        Log.d(TAG, "destroy() called");
+        Logger.d(TAG, "destroy() called");
         sModuleManager.unregisterModule(this);
         if (sModuleManager.tryDestroy()) {
             sModuleManager = null;

@@ -5,7 +5,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
-import android.util.Log;
+
+import com.jokin.framework.modulesdk.log.Logger;
 
 /**
  * Created by jokin on 2018/8/24 10:44.
@@ -60,9 +61,9 @@ public class AnrWatchDog {
         @Override
         public void run() {
             mNow = System.currentTimeMillis();
-            // Log.e(TAG, "run time:" + (mNow - mLast));
+            // Logger.e(TAG, "run time:" + (mNow - mLast));
             if (mNow - mLast > 2 * 1000) {
-                Log.e(TAG, "ANR!!");
+                Logger.e(TAG, "ANR!!");
                 Looper.getMainLooper().getThread().interrupt();
                 return;
             }

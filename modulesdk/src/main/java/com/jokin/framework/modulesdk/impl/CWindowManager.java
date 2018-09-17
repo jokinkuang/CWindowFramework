@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +14,7 @@ import android.view.WindowManager;
 import com.jokin.framework.modulesdk.IClientModule;
 import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.IWindowManager;
+import com.jokin.framework.modulesdk.log.Logger;
 
 import java.lang.ref.WeakReference;
 import java.security.InvalidParameterException;
@@ -43,7 +43,7 @@ public final class CWindowManager implements IWindowManager {
     }
 
     private void init() {
-        Log.d(TAG, "init() called");
+        Logger.d(TAG, "init() called");
         mWindowManager = (WindowManager) mContext.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
 
         int WINDOW_TYPE;
@@ -142,7 +142,7 @@ public final class CWindowManager implements IWindowManager {
 
         // Careful dead loop!! window.setWindowLayoutParams() may cause updateWindow() again !!
         if (layoutParams != window.getWindowLayoutParams()) {
-            Log.d(TAG, "updateWindow: save layoutParams to window");
+            Logger.d(TAG, "updateWindow: save layoutParams to window");
             window.setWindowLayoutParams(toLayoutParams((WindowManager.LayoutParams) contentView.getLayoutParams()));
         }
     }
@@ -164,7 +164,7 @@ public final class CWindowManager implements IWindowManager {
 
         // Careful dead loop!! window.setWindowLayoutParams() may cause updateWindow() again !!
         // if (layoutParams != window.getWindowLayoutParams()) {
-        //     Log.d(TAG, "updateWindow: save layoutParams to window");
+        //     Logger.d(TAG, "updateWindow: save layoutParams to window");
         //     window.setWindowLayoutParams(toLayoutParams((WindowManager.LayoutParams) contentView.getLayoutParams()));
         // }
     }
@@ -202,12 +202,12 @@ public final class CWindowManager implements IWindowManager {
 
     private void addView(View view, IWindow.LayoutParams layoutParams) {
         mWindowManager.addView(view, toWindowLayoutParams(layoutParams));
-        Log.d(TAG, "addView: added end with layoutParams:"+view.getLayoutParams());
+        Logger.d(TAG, "addView: added end with layoutParams:"+view.getLayoutParams());
     }
 
     private void updateView(View view, IWindow.LayoutParams layoutParams) {
         mWindowManager.updateViewLayout(view, toWindowLayoutParams(layoutParams));
-        Log.d(TAG, "updateView: update end with layoutParams:"+view.getLayoutParams());
+        Logger.d(TAG, "updateView: update end with layoutParams:"+view.getLayoutParams());
     }
 
     private void removeView(View view) {

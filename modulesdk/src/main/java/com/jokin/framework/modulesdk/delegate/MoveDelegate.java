@@ -1,10 +1,10 @@
 package com.jokin.framework.modulesdk.delegate;
 
-import android.util.Log;
 import android.view.MotionEvent;
 
 import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.iwindow.IBaseWindow;
+import com.jokin.framework.modulesdk.log.Logger;
 
 import java.security.InvalidParameterException;
 
@@ -55,14 +55,14 @@ public class MoveDelegate {
     }
 
     public void onStart(int x, int y) {
-        Log.d(TAG, "onStart() called with: x = [" + x + "], y = [" + y + "]");
+        Logger.d(TAG, "onStart() called with: x = [" + x + "], y = [" + y + "]");
         mParams = mWindow.getWindowLayoutParams();
         updateLimitsRect();
         mWindow.onMoveStart();
     }
 
     public void onContinue(int x, int y) {
-        Log.d(TAG, "onContinue() called with: x = [" + x + "], y = [" + y + "]");
+        Logger.d(TAG, "onContinue() called with: x = [" + x + "], y = [" + y + "]");
         if (x == 0 && y == 0) {
             return;
         }
@@ -81,7 +81,7 @@ public class MoveDelegate {
     }
 
     public void onEnd(int x, int y) {
-        Log.d(TAG, "onEnd() called with: x = [" + x + "], y = [" + y + "]");
+        Logger.d(TAG, "onEnd() called with: x = [" + x + "], y = [" + y + "]");
         mWindow.setWindowLayoutParams(mParams);
         mWindow.onMoveEnd();
     }

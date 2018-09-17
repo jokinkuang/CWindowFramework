@@ -5,7 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.util.Log;
+
+import com.jokin.framework.modulesdk.log.Logger;
 
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class ServerIntent {
 
         List<ResolveInfo> resolveInfos = pm.queryIntentServices(implicitIntent, 0);
         if (resolveInfos == null || resolveInfos.size() != 1) {
-            Log.d(TAG, "getExplicitIntent: ResolveInfos is empty!");
+            Logger.d(TAG, "getExplicitIntent: ResolveInfos is empty!");
             return null;
         }
 
@@ -61,7 +62,7 @@ public class ServerIntent {
         Intent explicitIntent = new Intent(implicitIntent);
         ComponentName component = new ComponentName(packageName, className);
         explicitIntent.setComponent(component);
-        Log.d(TAG, "getExplicitIntent() called with: implicitIntent = " + implicitIntent
+        Logger.d(TAG, "getExplicitIntent() called with: implicitIntent = " + implicitIntent
                 + ", explicitIntent = " + explicitIntent);
         return explicitIntent;
     }

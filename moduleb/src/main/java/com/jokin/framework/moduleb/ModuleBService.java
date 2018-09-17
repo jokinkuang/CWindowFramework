@@ -11,7 +11,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,6 +21,7 @@ import android.widget.TextView;
 import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.impl.CModule;
 import com.jokin.framework.modulesdk.impl.CWindow;
+import com.jokin.framework.modulesdk.log.Logger;
 import com.jokin.framework.modulesdk.view.CRemoteView;
 import com.jokin.framework.modulesdk.view.IRemoteViewManager;
 import com.jokin.framework.modulesdk.wrap.LifecycleAdapter;
@@ -42,7 +42,7 @@ public class ModuleBService extends Service implements View.OnClickListener {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "onCreate() called");
+        Logger.d(TAG, "onCreate() called");
         mModule = new CModule(this);
         mModule.addLifecycleCallback(new LifecycleAdapter() {
             @Override
@@ -66,7 +66,7 @@ public class ModuleBService extends Service implements View.OnClickListener {
         mWindow.findViewById(R.id.btn_scale).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Log.d(TAG, "onTouch() called with: v = [" + v + "], event = [" + event + "]");
+                Logger.d(TAG, "onTouch() called with: v = [" + v + "], event = [" + event + "]");
                 if (v.getId() == R.id.btn_scale) {
                     mWindow.getResizeDelegate().scale(event);
                     return true;
@@ -90,13 +90,13 @@ public class ModuleBService extends Service implements View.OnClickListener {
         mRemoteViewManager = mModule.getRemoteViewManagerService();
         mCRemoteView = new CRemoteView(this.getPackageName(), R.layout.layout_view_window);
         mRemoteViewManager.addView(mCRemoteView);
-        Log.e(TAG, "## finish create!");
+        Logger.e(TAG, "## finish create!");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy() called");
+        Logger.d(TAG, "onDestroy() called");
     }
 
     @Override
@@ -107,10 +107,10 @@ public class ModuleBService extends Service implements View.OnClickListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e(TAG, "onStartCommand() called with: intent = [" + intent + "], flags = [" + flags + "], startId = [" + startId + "]");
+        Logger.e(TAG, "onStartCommand() called with: intent = [" + intent + "], flags = [" + flags + "], startId = [" + startId + "]");
         mModule.getWindowManagerService().addWindow(mWindow);
-        Log.e(TAG, "onStartCommand: window layoutparams" + mWindow.getLayoutParams());
-        Log.d(TAG, "onStartCommand: window layoutparams" + mWindow.getWindowLayoutParams());
+        Logger.e(TAG, "onStartCommand: window layoutparams" + mWindow.getLayoutParams());
+        Logger.d(TAG, "onStartCommand: window layoutparams" + mWindow.getWindowLayoutParams());
         return Service.START_STICKY;
     }
 
@@ -143,7 +143,7 @@ public class ModuleBService extends Service implements View.OnClickListener {
     }
 
     private void onClickBtnClose() {
-        Log.d(TAG, "onClickBtnClose() called");
+        Logger.d(TAG, "onClickBtnClose() called");
         stopTimer();
         mModule.destroy();
     }
@@ -211,7 +211,7 @@ public class ModuleBService extends Service implements View.OnClickListener {
         if (res == null) {
             res = getResources();
         }
-        Log.d(TAG, "setBackground: "+id);
+        Logger.d(TAG, "setBackground: "+id);
 
         // 服务端内存占有非常大！Bitmap没能释放native的内存
         // Bitmap bmp = BitmapFactory.decodeResource(res, getDrawableId(id));
@@ -220,7 +220,7 @@ public class ModuleBService extends Service implements View.OnClickListener {
         // mCRemoteView.setImageViewResource(R.id.image, getDrawableId(id));
         mCRemoteView = mCRemoteView.clone();
         mCRemoteView.setImageViewResource(R.id.image, getDrawableId(id));
-        // Log.e(TAG, "========================");
+        // Logger.e(TAG, "========================");
         mRemoteViewManager.updateView(mCRemoteView);
 
         ((ImageView)mWindow.findViewById(R.id.image)).setImageResource(getDrawableId(id));

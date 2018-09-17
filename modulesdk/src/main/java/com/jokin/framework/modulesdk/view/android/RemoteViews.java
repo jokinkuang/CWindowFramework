@@ -30,7 +30,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
@@ -49,7 +48,6 @@ import android.support.annotation.DimenRes;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.util.ArrayMap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.LayoutInflater.Filter;
 import android.view.View;
@@ -64,6 +62,8 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.jokin.framework.modulesdk.log.Logger;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -274,10 +274,10 @@ public class RemoteViews implements Parcelable, Filter {
                         Intent.FLAG_ACTIVITY_NEW_TASK,
                         Intent.FLAG_ACTIVITY_NEW_TASK, 0, opts.toBundle());
             } catch (IntentSender.SendIntentException e) {
-                Log.e(LOG_TAG, "Cannot send pending intent: ", e);
+                Logger.e(LOG_TAG, "Cannot send pending intent: ", e);
                 return false;
             } catch (Exception e) {
-                Log.e(LOG_TAG, "Cannot send pending intent due to " +
+                Logger.e(LOG_TAG, "Cannot send pending intent due to " +
                         "unknown exception: ", e);
                 return false;
             }
@@ -513,7 +513,7 @@ public class RemoteViews implements Parcelable, Filter {
             if (target == null) return;
 
             if (!mIsWidgetCollectionChild) {
-                Log.e(LOG_TAG, "The method setOnClickFillInIntent is available " +
+                Logger.e(LOG_TAG, "The method setOnClickFillInIntent is available " +
                         "only from RemoteViewsFactory (ie. on collection items).");
                 return;
             }
@@ -536,7 +536,7 @@ public class RemoteViews implements Parcelable, Filter {
                         Class cls = null;
                         try {
                             cls = Class.forName("android.widget.RemoteViewsAdapter.RemoteViewsFrameLayout");
-                            Log.i(LOG_TAG, "reflect:" + cls.toString());
+                            Logger.i(LOG_TAG, "reflect:" + cls.toString());
                         } catch (ClassNotFoundException e) {
                             e.printStackTrace();
                         }
@@ -550,13 +550,13 @@ public class RemoteViews implements Parcelable, Filter {
                         if (!(parent instanceof AdapterView<?>)) {
                             // Somehow they've managed to get this far without having
                             // and AdapterView as a parent.
-                            Log.e(LOG_TAG, "Collection item doesn't have AdapterView parent");
+                            Logger.e(LOG_TAG, "Collection item doesn't have AdapterView parent");
                             return;
                         }
 
                         // Insure that a template pending intent has been set on an ancestor
                         if (!(parent.getTag() instanceof PendingIntent)) {
-                            Log.e(LOG_TAG, "Attempting setOnClickFillInIntent without" +
+                            Logger.e(LOG_TAG, "Attempting setOnClickFillInIntent without" +
                                     " calling setPendingIntentTemplate on parent.");
                             return;
                         }
@@ -646,7 +646,7 @@ public class RemoteViews implements Parcelable, Filter {
                 av.setOnItemClickListener(listener);
                 av.setTag(pendingIntentTemplate);
             } else {
-                Log.e(LOG_TAG, "Cannot setPendingIntentTemplate on a view which is not" +
+                Logger.e(LOG_TAG, "Cannot setPendingIntentTemplate on a view which is not" +
                         "an AdapterView (id: " + viewId + ")");
                 return;
             }
@@ -705,13 +705,13 @@ public class RemoteViews implements Parcelable, Filter {
 
             // Ensure that we are applying to an AppWidget root
             if (!(rootParent instanceof AppWidgetHostView)) {
-                Log.e(LOG_TAG, "SetRemoteViewsAdapterIntent action can only be used for " +
+                Logger.e(LOG_TAG, "SetRemoteViewsAdapterIntent action can only be used for " +
                         "AppWidgets (root id: " + viewId + ")");
                 return;
             }
             // Ensure that we are calling setRemoteAdapter on an AdapterView that supports it
             if (!(target instanceof AbsListView) && !(target instanceof AdapterViewAnimator)) {
-                Log.e(LOG_TAG, "Cannot setRemoteViewsAdapter on a view which is not " +
+                Logger.e(LOG_TAG, "Cannot setRemoteViewsAdapter on a view which is not " +
                         "an AbsListView or AdapterViewAnimator (id: " + viewId + ")");
                 return;
             }
@@ -851,13 +851,13 @@ public class RemoteViews implements Parcelable, Filter {
 
             // Ensure that we are applying to an AppWidget root
             if (!(rootParent instanceof AppWidgetHostView)) {
-                Log.e(LOG_TAG, "SetRemoteViewsAdapterIntent action can only be used for " +
+                Logger.e(LOG_TAG, "SetRemoteViewsAdapterIntent action can only be used for " +
                         "AppWidgets (root id: " + viewId + ")");
                 return;
             }
             // Ensure that we are calling setRemoteAdapter on an AdapterView that supports it
             if (!(target instanceof AbsListView) && !(target instanceof AdapterViewAnimator)) {
-                Log.e(LOG_TAG, "Cannot setRemoteViewsAdapter on a view which is not " +
+                Logger.e(LOG_TAG, "Cannot setRemoteViewsAdapter on a view which is not " +
                         "an AbsListView or AdapterViewAnimator (id: " + viewId + ")");
                 return;
             }
@@ -940,7 +940,7 @@ public class RemoteViews implements Parcelable, Filter {
             // If the view is an AdapterView, setting a PendingIntent on click doesn't make much
             // sense, do they mean to set a PendingIntent template for the AdapterView's children?
             if (mIsWidgetCollectionChild) {
-                Log.w(LOG_TAG, "Cannot setOnClickPendingIntent for collection item " +
+                Logger.w(LOG_TAG, "Cannot setOnClickPendingIntent for collection item " +
                         "(id: " + viewId + ")");
                 ApplicationInfo appInfo = root.getContext().getApplicationInfo();
 
@@ -1392,7 +1392,7 @@ public class RemoteViews implements Parcelable, Filter {
             this.type = in.readInt();
             //noinspection ConstantIfStatement
             if (false) {
-                Log.d(LOG_TAG, "read viewId=0x" + Integer.toHexString(this.viewId)
+                Logger.d(LOG_TAG, "read viewId=0x" + Integer.toHexString(this.viewId)
                         + " methodName=" + this.methodName + " type=" + this.type);
             }
 
@@ -1471,7 +1471,7 @@ public class RemoteViews implements Parcelable, Filter {
             out.writeInt(this.type);
             //noinspection ConstantIfStatement
             if (false) {
-                Log.d(LOG_TAG, "write viewId=0x" + Integer.toHexString(this.viewId)
+                Logger.d(LOG_TAG, "write viewId=0x" + Integer.toHexString(this.viewId)
                         + " methodName=" + this.methodName + " type=" + this.type);
             }
 
@@ -3736,7 +3736,7 @@ public class RemoteViews implements Parcelable, Filter {
         //         return context.createApplicationContext(mApplication,
         //                 Context.CONTEXT_RESTRICTED);
         //     } catch (NameNotFoundException e) {
-        //         Log.e(LOG_TAG, "Package name " + mApplication.packageName + " not found");
+        //         Logger.e(LOG_TAG, "Package name " + mApplication.packageName + " not found");
         //     }
         // }
 

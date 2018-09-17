@@ -1,11 +1,11 @@
 package com.jokin.framework.modulesdk.delegate;
 
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
 import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.iwindow.IBaseWindow;
+import com.jokin.framework.modulesdk.log.Logger;
 
 import java.security.InvalidParameterException;
 
@@ -36,13 +36,13 @@ public class ScaleDelegate {
     }
 
     public void scale(MotionEvent event) {
-        Log.d(TAG, "handleEvent() called with: event = [" + event + "]");
+        Logger.d(TAG, "handleEvent() called with: event = [" + event + "]");
         int x = (int) event.getRawX();
         int y = (int) event.getRawY();
-        Log.d(TAG, "handleEvent: x="+x+"|y="+y);
+        Logger.d(TAG, "handleEvent: x="+x+"|y="+y);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                Log.d(TAG, "handleEvent: last x="+x+",y="+y);
+                Logger.d(TAG, "handleEvent: last x="+x+",y="+y);
                 mTouchLastX = x;
                 mTouchLastY = y;
                 onStart(x, y);
@@ -50,7 +50,7 @@ public class ScaleDelegate {
             case MotionEvent.ACTION_MOVE:
                 int offsetX = x - mTouchLastX;
                 int offsetY = y - mTouchLastY;
-                Log.d(TAG, "handleEvent: offset ox="+offsetX+",oy="+offsetY);
+                Logger.d(TAG, "handleEvent: offset ox="+offsetX+",oy="+offsetY);
                 onContinue(offsetX, offsetY);
                 // a new move with new width.
                 mTouchLastX = x;
@@ -67,11 +67,11 @@ public class ScaleDelegate {
     }
 
     private void onStart(int x, int y) {
-        Log.d(TAG, "onStart() called with: x = [" + x + "], y = [" + y + "]");
+        Logger.d(TAG, "onStart() called with: x = [" + x + "], y = [" + y + "]");
         mParams = mWindow.getWindowLayoutParams();
         mParams.width = mWindow.getContentView().getWidth();
         mParams.height = mWindow.getContentView().getHeight();
-        Log.d(TAG, "onStart: "+mParams);
+        Logger.d(TAG, "onStart: "+mParams);
         mContentParams = mWindow.getContentView().getLayoutParams();
         mWindow.onScaleStart();
     }
@@ -82,17 +82,17 @@ public class ScaleDelegate {
         }
         // scaleParams(mParams, x, y);
         // scaleParams(mContentParams, x, y);
-        Log.d(TAG, "onContinue: old width="+mParams.width+", height="+mParams.height);
+        Logger.d(TAG, "onContinue: old width="+mParams.width+", height="+mParams.height);
         mParams.width += x;
         mParams.height += y;
-        Log.d(TAG, "onContinue: new width="+mParams.width+", height="+mParams.height);
+        Logger.d(TAG, "onContinue: new width="+mParams.width+", height="+mParams.height);
         mWindow.setWindowLayoutParams(mParams);
         mWindow.onScaling();
         // mWindow.getContentView().setLayoutParams(mContentParams);
     }
 
     private void scaleParams(ViewGroup.LayoutParams params, int x, int y) {
-        Log.d(TAG, "scaleParams x = [" + x + "], y = [" + y + "]");
+        Logger.d(TAG, "scaleParams x = [" + x + "], y = [" + y + "]");
         params.width += x;
         params.height += y;
         params.width = mParams.width < WINDOW_WIDTH_MIN
@@ -107,7 +107,7 @@ public class ScaleDelegate {
     }
 
     private void onEnd(int x, int y) {
-        Log.d(TAG, "onEnd() called with: x = [" + x + "], y = [" + y + "]");
+        Logger.d(TAG, "onEnd() called with: x = [" + x + "], y = [" + y + "]");
         mWindow.onScaleEnd();
         // mContentParams.width = x;
         // mContentParams.height = y;

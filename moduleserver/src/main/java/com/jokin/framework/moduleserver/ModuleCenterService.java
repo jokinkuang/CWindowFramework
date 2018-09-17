@@ -6,13 +6,13 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.jokin.framework.modulesdk.IModuleClient;
 import com.jokin.framework.modulesdk.IModuleServer;
 import com.jokin.framework.modulesdk.IViewServer;
 import com.jokin.framework.modulesdk.constant.Constants;
 import com.jokin.framework.modulesdk.constant.Server;
+import com.jokin.framework.modulesdk.log.Logger;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,38 +28,38 @@ public class ModuleCenterService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "onCreate() called");
+        Logger.d(TAG, "onCreate() called");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "Service destroyed with mClientModules size:"+mClientModules.size());
+        Logger.d(TAG, "Service destroyed with mClientModules size:"+mClientModules.size());
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         if (intent == null) {
-            Log.d(TAG, "onBind() called with intent null [" + intent + "]");
+            Logger.d(TAG, "onBind() called with intent null [" + intent + "]");
             return mModuleServer;
         }
         if (Constants.BINDER_LOCAL.equalsIgnoreCase(intent.getAction())) {
-            Log.d(TAG, "onBind() called with: local = [" + intent + "]");
+            Logger.d(TAG, "onBind() called with: local = [" + intent + "]");
             return new LocalBinder();
         }
-        Log.d(TAG, "onBind() called with: remote = [" + intent + "]");
+        Logger.d(TAG, "onBind() called with: remote = [" + intent + "]");
         return mModuleServer;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
         // TODO remote all listeners form the package!
-        Log.d(TAG, "onUnbind() called with: intent = [" + intent + "]");
+        Logger.d(TAG, "onUnbind() called with: intent = [" + intent + "]");
         return super.onUnbind(intent);
     }
 
     public void notifyOnCreate(Bundle bundle) {
-        Log.d(TAG, "notifyOnCreate() called with size: "+mClientModules.size());
+        Logger.d(TAG, "notifyOnCreate() called with size: "+mClientModules.size());
         for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
             IModuleClient remoteClient = iterator.next();
             try {
@@ -72,7 +72,7 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnStart() {
-        Log.d(TAG, "notifyOnStart() called with size: "+mClientModules.size());
+        Logger.d(TAG, "notifyOnStart() called with size: "+mClientModules.size());
         for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
             IModuleClient remoteClient = iterator.next();
             try {
@@ -85,7 +85,7 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnResume() {
-        Log.d(TAG, "notifyOnResume() called with size: "+mClientModules.size());
+        Logger.d(TAG, "notifyOnResume() called with size: "+mClientModules.size());
         for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
             IModuleClient remoteClient = iterator.next();
             try {
@@ -98,7 +98,7 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnPause() {
-        Log.d(TAG, "notifyOnPause() called with size: "+mClientModules.size());
+        Logger.d(TAG, "notifyOnPause() called with size: "+mClientModules.size());
         for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
             IModuleClient remoteClient = iterator.next();
             try {
@@ -111,7 +111,7 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnRestart() {
-        Log.d(TAG, "notifyOnRestart() called with size: "+mClientModules.size());
+        Logger.d(TAG, "notifyOnRestart() called with size: "+mClientModules.size());
         for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
             IModuleClient remoteClient = iterator.next();
             try {
@@ -124,7 +124,7 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnStop() {
-        Log.d(TAG, "notifyOnStop() called with size: "+mClientModules.size());
+        Logger.d(TAG, "notifyOnStop() called with size: "+mClientModules.size());
         for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
             IModuleClient remoteClient = iterator.next();
             try {
@@ -137,7 +137,7 @@ public class ModuleCenterService extends Service {
     }
 
     public void notifyOnDestroy() {
-        Log.d(TAG, "notifyOnDestroy() called with size: "+mClientModules.size());
+        Logger.d(TAG, "notifyOnDestroy() called with size: "+mClientModules.size());
         for (Iterator<IModuleClient> iterator = mClientModules.values().iterator(); iterator.hasNext();) {
             IModuleClient remoteClient = iterator.next();
             try {
@@ -156,16 +156,16 @@ public class ModuleCenterService extends Service {
     private final IModuleServer.Stub mModuleServer = new IModuleServer.Stub() {
         @Override
         public void registerModule(IModuleClient client) throws RemoteException {
-            Log.d(TAG, "## registerModule client = [" + client.key() + "]");
+            Logger.d(TAG, "## registerModule client = [" + client.key() + "]");
             if (mClientModules.contains(client.key())) {
-                Log.w(TAG, "## registerModule client already exist update it:"+client.key());
+                Logger.w(TAG, "## registerModule client already exist update it:"+client.key());
             }
             mClientModules.put(client.key(), client);
         }
 
         @Override
         public void unregisterModule(IModuleClient client) throws RemoteException {
-            Log.d(TAG, "unregisterModule() called with: client = [" + client.key() + "]");
+            Logger.d(TAG, "unregisterModule() called with: client = [" + client.key() + "]");
             mClientModules.remove(client.key());
         }
 
@@ -185,7 +185,7 @@ public class ModuleCenterService extends Service {
     };
 
     private IBinder getServiceInner(String service) {
-        Log.i(TAG, "## getServiceInner: "+service);
+        Logger.i(TAG, "## getServiceInner: "+service);
         if (Server.VIEW_SERVICE.equalsIgnoreCase(service)) {
             return mViewServer;
         } else if (Server.WINDOW_SERVICE.equalsIgnoreCase(service)) {

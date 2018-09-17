@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -15,6 +14,7 @@ import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.IWindowManager;
 import com.jokin.framework.modulesdk.delegate.MoveDelegate;
 import com.jokin.framework.modulesdk.delegate.ResizeDelegate;
+import com.jokin.framework.modulesdk.log.Logger;
 
 /**
  * Created by jokin on 2018/7/16 10:51.
@@ -57,40 +57,40 @@ public class CWindow extends FrameLayout implements IWindow {
 
     @Override
     public void onCreate(Bundle bundle) {
-        Log.d(TAG, "onCreate() called with: bundle = [" + bundle + "]");
+        Logger.d(TAG, "onCreate() called with: bundle = [" + bundle + "]");
         setVisibility(INVISIBLE);
     }
 
     @Override
     public void onStart() {
-        Log.d(TAG, "onStart() called");
+        Logger.d(TAG, "onStart() called");
     }
 
     @Override
     public void onRestart() {
-        Log.d(TAG, "onRestart() called");
+        Logger.d(TAG, "onRestart() called");
     }
 
     @Override
     public void onResume() {
-        Log.d(TAG, "onResume() called");
+        Logger.d(TAG, "onResume() called");
         setVisibility(VISIBLE);
     }
 
     @Override
     public void onPause() {
-        Log.d(TAG, "onPause() called");
+        Logger.d(TAG, "onPause() called");
     }
 
     @Override
     public void onStop() {
-        Log.d(TAG, "onStop() called");
+        Logger.d(TAG, "onStop() called");
         setVisibility(INVISIBLE);
     }
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "onDestroy() called");
+        Logger.d(TAG, "onDestroy() called");
         setVisibility(INVISIBLE);
     }
 
@@ -162,11 +162,11 @@ public class CWindow extends FrameLayout implements IWindow {
 
     private boolean equals(WindowManager.LayoutParams params1, WindowManager.LayoutParams params2) {
         if (params1 != null && params2 == null) {
-            Log.d(TAG, "equals: f");
+            Logger.d(TAG, "equals: f");
             return false;
         }
         if (params1 == null && params2 != null) {
-            Log.d(TAG, "equals: f2");
+            Logger.d(TAG, "equals: f2");
             return false;
         }
         if (params1.x != params2.x) {

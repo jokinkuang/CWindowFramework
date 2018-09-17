@@ -6,12 +6,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.jokin.framework.modulesdk.IClientModule;
 import com.jokin.framework.modulesdk.IModuleManager;
 import com.jokin.framework.modulesdk.IModuleServer;
 import com.jokin.framework.modulesdk.intent.ServerIntent;
+import com.jokin.framework.modulesdk.log.Logger;
 import com.jokin.framework.modulesdk.wrap.RemoteModuleBridge;
 
 import java.security.InvalidParameterException;
@@ -37,7 +37,7 @@ public final class CModuleManager implements IModuleManager {
     }
 
     private void init() {
-        Log.i(TAG, "## Init()");
+        Logger.i(TAG, "## Init()");
         Intent intentService = ServerIntent.getServerMainServiceIntent(mContext);
         mContext.bindService(intentService, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
@@ -45,8 +45,8 @@ public final class CModuleManager implements IModuleManager {
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d(TAG, "onServiceConnected() called with: name = [" + name + "], service = [" + service + "]");
-            Log.i(TAG, "## ServiceConnected");
+            Logger.d(TAG, "onServiceConnected() called with: name = [" + name + "], service = [" + service + "]");
+            Logger.i(TAG, "## ServiceConnected");
 
             mModuleServer = IModuleServer.Stub.asInterface(service);
             notifyConnected();
@@ -55,7 +55,7 @@ public final class CModuleManager implements IModuleManager {
                 mModuleServer.asBinder().linkToDeath(new IBinder.DeathRecipient() {
                     @Override
                     public void binderDied() {
-                        Log.e(TAG, "dead!!!");
+                        Logger.e(TAG, "dead!!!");
                     }
                 }, 0);
             } catch (RemoteException e) {
@@ -64,7 +64,7 @@ public final class CModuleManager implements IModuleManager {
 
             for (IClientModule module : mClientModules.values()) {
                 try {
-                    Log.d(TAG, "onServiceConnected: "+ module);
+                    Logger.d(TAG, "onServiceConnected: "+ module);
                     RemoteModuleBridge bridge = new RemoteModuleBridge(module);
                     mModuleServer.registerModule(bridge);
                      bridge = new RemoteModuleBridge(module);
@@ -82,8 +82,8 @@ public final class CModuleManager implements IModuleManager {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG, "onServiceDisconnected() called with: name = [" + name + "]");
-            Log.i(TAG, "## ServiceDisconnected");
+            Logger.d(TAG, "onServiceDisconnected() called with: name = [" + name + "]");
+            Logger.i(TAG, "## ServiceDisconnected");
 
             /** When disconnected, no more unregister through IPC */
 
@@ -107,7 +107,7 @@ public final class CModuleManager implements IModuleManager {
      */
     public boolean tryDestroy() {
         if (mClientModules.size() == 0) {
-            Log.i(TAG, "## TryDestroy: destroy() now");
+            Logger.i(TAG, "## TryDestroy: destroy() now");
             destroy();
             return true;
         }
@@ -119,8 +119,8 @@ public final class CModuleManager implements IModuleManager {
      **/
     @Override
     public void destroy() {
-        Log.i(TAG, "## Destroy()");
-        Log.i(TAG, "## modules size: "+mClientModules.size());
+        Logger.i(TAG, "## Destroy()");
+        Logger.i(TAG, "## modules size: "+mClientModules.size());
         if (mModuleServer != null) {
             // 1. unregister by IPC
             IClientModule[] modules = mClientModules.values().toArray(new IClientModule[mClientModules.size()]);
@@ -132,7 +132,7 @@ public final class CModuleManager implements IModuleManager {
             mModuleServer = null;
             // 4. clear
             mClientModules.clear();
-            Log.i(TAG, "## ##");
+            Logger.i(TAG, "## ##");
         }
     }
 
@@ -165,7 +165,7 @@ public final class CModuleManager implements IModuleManager {
         }
         if (mModuleServer != null) {
             try {
-                Log.i(TAG, "## RegisterModule:"+module);
+                Logger.i(TAG, "## RegisterModule:"+module);
                 mModuleServer.registerModule(new RemoteModuleBridge(module));
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -180,15 +180,15 @@ public final class CModuleManager implements IModuleManager {
             return;
         }
         if (! mClientModules.containsKey(module.hashCode())) {
-            Log.w(TAG, "## UnregisterModule not found module:"+module);
+            Logger.w(TAG, "## UnregisterModule not found module:"+module);
             return;
         }
         if (mModuleServer != null) {
             try {
-                Log.i(TAG, "## UnregisterModule:"+module);
+                Logger.i(TAG, "## UnregisterModule:"+module);
                 mModuleServer.unregisterModule(new RemoteModuleBridge(module));
             } catch (RemoteException e) {
-                Log.e(TAG, "", e);
+                Logger.e(TAG, "", e);
             }
         }
         mClientModules.remove(module.hashCode());
@@ -205,10 +205,10 @@ public final class CModuleManager implements IModuleManager {
         }
         if (mModuleServer != null) {
             try {
-                Log.i(TAG, "## GetService:"+service);
+                Logger.i(TAG, "## GetService:"+service);
                 return mModuleServer.getService(service);
             } catch (RemoteException e) {
-                Log.e(TAG, "", e);
+                Logger.e(TAG, "", e);
             }
         }
         return null;

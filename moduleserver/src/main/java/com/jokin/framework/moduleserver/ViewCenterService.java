@@ -2,9 +2,9 @@ package com.jokin.framework.moduleserver;
 
 import android.os.Handler;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.jokin.framework.modulesdk.IViewServer;
+import com.jokin.framework.modulesdk.log.Logger;
 import com.jokin.framework.modulesdk.view.CRemoteView;
 
 import java.util.Iterator;
@@ -24,21 +24,21 @@ public class ViewCenterService extends IViewServer.Stub {
 
     @Override
     public void add(CRemoteView view) throws RemoteException {
-        Log.d(TAG, "add() called with: view = [" + view + "]");
+        Logger.d(TAG, "add() called with: view = [" + view + "]");
         mClientViews.put(view.key(), view);
         notifyOnAdd(view);
     }
 
     @Override
     public void update(CRemoteView view) throws RemoteException {
-        Log.d(TAG, "update() called with: view = [" + view + "]");
+        Logger.d(TAG, "update() called with: view = [" + view + "]");
         mClientViews.put(view.key(), view);
         notifyOnUpdate(view);
     }
 
     @Override
     public void remove(CRemoteView view) throws RemoteException {
-        Log.d(TAG, "remove() called with: view = [" + view + "]");
+        Logger.d(TAG, "remove() called with: view = [" + view + "]");
         mClientViews.remove(view.key());
         notifyOnRemove(view);
     }
@@ -54,8 +54,8 @@ public class ViewCenterService extends IViewServer.Stub {
     }
 
     private void notifyOnAdd(final CRemoteView view) {
-        Log.d(TAG, "notifyOnAdd() called with: view = [" + view + "]");
-        Log.d(TAG, "notifyOnAdd() view size:"+mClientViews.size()+", listener size:"+mRemoteViewListeners.size());
+        Logger.d(TAG, "notifyOnAdd() called with: view = [" + view + "]");
+        Logger.d(TAG, "notifyOnAdd() view size:"+mClientViews.size()+", listener size:"+mRemoteViewListeners.size());
         for (Iterator<IRemoteViewListener> iterator = mRemoteViewListeners.values().iterator(); iterator.hasNext();) {
             final IRemoteViewListener listener = iterator.next();
             try {
@@ -72,8 +72,8 @@ public class ViewCenterService extends IViewServer.Stub {
     }
 
     private void notifyOnUpdate(final CRemoteView view) {
-        Log.d(TAG, "notifyOnUpdate() called with: view = [" + view + "]");
-        Log.d(TAG, "notifyOnUpdate() view size:"+mClientViews.size());
+        Logger.d(TAG, "notifyOnUpdate() called with: view = [" + view + "]");
+        Logger.d(TAG, "notifyOnUpdate() view size:"+mClientViews.size());
         for (Iterator<IRemoteViewListener> iterator = mRemoteViewListeners.values().iterator(); iterator.hasNext();) {
             final IRemoteViewListener listener = iterator.next();
             try {
@@ -90,8 +90,8 @@ public class ViewCenterService extends IViewServer.Stub {
     }
 
     private void notifyOnRemove(final CRemoteView view) {
-        Log.d(TAG, "notifyOnRemove() called with: view = [" + view + "]");
-        Log.d(TAG, "notifyOnRemove() view size:"+mClientViews.size());
+        Logger.d(TAG, "notifyOnRemove() called with: view = [" + view + "]");
+        Logger.d(TAG, "notifyOnRemove() view size:"+mClientViews.size());
         for (Iterator<IRemoteViewListener> iterator = mRemoteViewListeners.values().iterator(); iterator.hasNext();) {
             final IRemoteViewListener listener = iterator.next();
             try {

@@ -1,12 +1,12 @@
 package com.jokin.framework.modulesdk;
 
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
 import com.jokin.framework.modulesdk.iwindow.IBaseWindow;
 import com.jokin.framework.modulesdk.iwindow.ILifecycable;
+import com.jokin.framework.modulesdk.log.Logger;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -202,7 +202,7 @@ public interface IWindow extends IBaseWindow, ILifecycable {
             for (Iterator<Map.Entry<String, Integer>> iterator = sGravitys.entrySet().iterator();
                     iterator.hasNext();) {
                 Map.Entry<String, Integer> entry = iterator.next();
-                Log.d(TAG, "dumpGravity: " + entry.getKey() + " = #" + Integer.toHexString(entry.getValue()));
+                Logger.d(TAG, "dumpGravity: " + entry.getKey() + " = #" + Integer.toHexString(entry.getValue()));
             }
         }
     }

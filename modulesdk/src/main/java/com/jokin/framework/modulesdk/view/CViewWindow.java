@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +22,7 @@ import com.jokin.framework.modulesdk.IWindow;
 import com.jokin.framework.modulesdk.IWindowManager;
 import com.jokin.framework.modulesdk.R;
 import com.jokin.framework.modulesdk.delegate.ResizeDelegate;
+import com.jokin.framework.modulesdk.log.Logger;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -82,7 +82,7 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
         findViewById(R.id.btn_scale).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Log.d(TAG, "onTouch() called with: v = [" + v + "], event = [" + event + "]");
+                Logger.d(TAG, "onTouch() called with: v = [" + v + "], event = [" + event + "]");
                 if (v.getId() == R.id.btn_scale) {
                     mResizeDelegate.scale(event);
                     return true;
@@ -98,10 +98,10 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
     private String space = "-";
     private String SEPARATOR = "--";
     private void printTree(ViewGroup parent) {
-        Log.e(TAG, space+"child count:" + parent.getChildCount());
+        Logger.e(TAG, space+"child count:" + parent.getChildCount());
         for (int i = 0; i < parent.getChildCount(); ++i) {
             View child = parent.getChildAt(i);
-            Log.e(TAG, space+String.format("child(%d): %s", i, child.toString()));
+            Logger.e(TAG, space+String.format("child(%d): %s", i, child.toString()));
             if (child instanceof ViewGroup) {
                 space += SEPARATOR;
                 printTree((ViewGroup) child);
@@ -112,40 +112,40 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
 
     @Override
     public void onCreate(Bundle bundle) {
-        Log.d(TAG, "onCreate() called with: bundle = [" + bundle + "]");
+        Logger.d(TAG, "onCreate() called with: bundle = [" + bundle + "]");
         setVisibility(INVISIBLE);
     }
 
     @Override
     public void onStart() {
-        Log.d(TAG, "onStart() called");
+        Logger.d(TAG, "onStart() called");
     }
 
     @Override
     public void onRestart() {
-        Log.d(TAG, "onRestart() called");
+        Logger.d(TAG, "onRestart() called");
     }
 
     @Override
     public void onResume() {
-        Log.d(TAG, "onResume() called");
+        Logger.d(TAG, "onResume() called");
         setVisibility(VISIBLE);
     }
 
     @Override
     public void onPause() {
-        Log.d(TAG, "onPause() called");
+        Logger.d(TAG, "onPause() called");
     }
 
     @Override
     public void onStop() {
-        Log.d(TAG, "onStop() called");
+        Logger.d(TAG, "onStop() called");
         setVisibility(INVISIBLE);
     }
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "onDestroy() called");
+        Logger.d(TAG, "onDestroy() called");
         setVisibility(INVISIBLE);
     }
 
@@ -219,11 +219,11 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
 
     private boolean equals(ViewGroup.LayoutParams params1, ViewGroup.LayoutParams params2) {
         if (params1 != null && params2 == null) {
-            Log.d(TAG, "equals: f");
+            Logger.d(TAG, "equals: f");
             return false;
         }
         if (params1 == null && params2 != null) {
-            Log.d(TAG, "equals: f2");
+            Logger.d(TAG, "equals: f2");
             return false;
         }
         if (params1.width != params2.width) {
@@ -253,7 +253,7 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
     @Override
     public void notifyActivated() {
         // TODO notify server
-        Log.e(TAG, "notifyActivated!");
+        Logger.e(TAG, "notifyActivated!");
     }
 
     @Override
@@ -314,49 +314,49 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
             // try {
             //     Thread.sleep(10*1000);
             // } catch (InterruptedException e) {
-            //     Log.e(TAG, "", e);
+            //     Logger.e(TAG, "", e);
             // }
 
             // Intent intent = getContext().getPackageManager().buildRequestPermissionsIntent(permissions);
             PackageManager packageManager = getContext().getPackageManager();
             try {
-                Log.e(TAG, "onClick: " + packageManager);
+                Logger.e(TAG, "onClick: " + packageManager);
                 // Intent intent = new Intent("android.content.pm.action.REQUEST_PERMISSIONS");
                 // intent.putExtra("android.content.pm.extra.REQUEST_PERMISSIONS_NAMES", PERMISSIONS_STORAGE);
                 // intent.setPackage(getContext().getPackageManager().getPermissionControllerPackageName());
 
                 // Method method = packageManager.getClass().getMethod("getPermissionControllerPackageName");
                 // String pkg = (String) method.invoke(packageManager);
-                // Log.e(TAG, "pkg:"+pkg);
+                // Logger.e(TAG, "pkg:"+pkg);
                 // intent.setPackage(pkg);
 
                 int result = getContext().checkPermission("android.permission.WRITE_EXTERNAL_STORAGE", android.os.Process.myPid(), Process.myUid());
                 if (result != PackageManager.PERMISSION_GRANTED) {
-                    Log.e(TAG, "Not granted permission!");
+                    Logger.e(TAG, "Not granted permission!");
                 } else {
-                    Log.e(TAG, "Granted permission!");
+                    Logger.e(TAG, "Granted permission!");
                 }
 
                 Method method = packageManager.getClass().getMethod("buildRequestPermissionsIntent", new Class<?>[]{String[].class});
-                Log.e(TAG, "onClick: "+method);
+                Logger.e(TAG, "onClick: "+method);
                 Intent intent = (Intent) method.invoke(packageManager, new Object[]{PERMISSIONS_STORAGE});
-                Log.e(TAG, "onClick: "+intent);
+                Logger.e(TAG, "onClick: "+intent);
                 getContext().startActivity(intent);
             } catch (Exception e) {
-                Log.e(TAG, "", e);
+                Logger.e(TAG, "", e);
             }
 
             post(new Runnable() {
                 @Override
                 public void run() {
-                    Log.e(TAG, "start:"+System.currentTimeMillis());
+                    Logger.e(TAG, "start:"+System.currentTimeMillis());
                     Bitmap bitmap = Bitmap.createBitmap(5000, 5000, Bitmap.Config.ARGB_8888);
                     try {
                         bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(getContext().getCacheDir().getAbsolutePath()+"/a"));
                     } catch (FileNotFoundException e) {
-                        Log.e(TAG, "", e);
+                        Logger.e(TAG, "", e);
                     }
-                    Log.e(TAG, "end:"+System.currentTimeMillis());
+                    Logger.e(TAG, "end:"+System.currentTimeMillis());
                 }
             });
         } else if (i == R.id.btn_scale) {
@@ -370,7 +370,7 @@ public class CViewWindow extends FrameLayout implements IWindow, View.OnClickLis
 
 
     private void onClickBtnClose() {
-        Log.d(TAG, "onClickBtnClose() called");
+        Logger.d(TAG, "onClickBtnClose() called");
         ViewGroup parent = (ViewGroup) getParent();
         if (parent != null) {
             parent.removeView(this);

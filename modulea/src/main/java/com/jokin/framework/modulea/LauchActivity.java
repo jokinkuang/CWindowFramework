@@ -3,9 +3,9 @@ package com.jokin.framework.modulea;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.jokin.framework.modulesdk.intent.ServerIntent;
+import com.jokin.framework.modulesdk.log.Logger;
 
 
 public class LauchActivity extends Activity {
@@ -16,7 +16,7 @@ public class LauchActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate() called");
+        Logger.d(TAG, "onCreate() called");
         // startActivity(ServerIntent.getServerMainActivityIntent(this));
 
         // startService(new Intent(this, ModuleBService.class));
@@ -29,7 +29,7 @@ public class LauchActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d(TAG, "onStop() called");
+        Logger.d(TAG, "onStop() called");
         startService(new Intent(this, ModuleAService.class));
         finish();
     }
