@@ -67,12 +67,6 @@ public final class CModuleManager implements IModuleManager {
                     Logger.d(TAG, "onServiceConnected: "+ module);
                     RemoteModuleBridge bridge = new RemoteModuleBridge(module);
                     mModuleServer.registerModule(bridge);
-                     bridge = new RemoteModuleBridge(module);
-                    mModuleServer.registerModule(bridge);
-                     bridge = new RemoteModuleBridge(module);
-                    mModuleServer.registerModule(bridge);
-                     bridge = new RemoteModuleBridge(module);
-                    mModuleServer.registerModule(bridge);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }

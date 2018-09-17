@@ -38,9 +38,6 @@ public class CModule implements IClientModule {
             sModuleManager = new CModuleManager(mContext);
         }
         sModuleManager.registerModule(this);
-        sModuleManager.registerModule(this);
-        sModuleManager.registerModule(this);
-        sModuleManager.registerModule(this);
 
         mWindowManager = new CWindowManager(this);
         mRemoteViewManager = new RemoteWindowManager(this, sModuleManager);
