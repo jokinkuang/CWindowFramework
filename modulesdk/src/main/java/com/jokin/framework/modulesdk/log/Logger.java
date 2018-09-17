@@ -1,5 +1,7 @@
 package com.jokin.framework.modulesdk.log;
 
+import com.jokin.framework.modulesdk.BuildConfig;
+
 /**
  * Created by jokin on 2018/7/3 11:35.
  *
@@ -11,13 +13,19 @@ public class Logger {
 
     static ILog log() {
         if (mLogHub == null) {
-            mLogHub = Singleton.instance;
+            synchronized (Logger.class) {
+                if (mLogHub == null) {
+                    if (BuildConfig.DEBUG) {
+                        // Debug Log
+                        mLogHub = new Logcat();
+                    } else {
+                        // Runtime Log
+                        mLogHub = new Logcat();
+                    }
+                }
+            }
         }
         return mLogHub;
-    }
-
-    static class Singleton {
-        static final ILog instance = new Logcat();
     }
 
     public static void v(String tag, String msg) {
